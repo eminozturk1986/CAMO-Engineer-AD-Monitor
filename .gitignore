@@ -1,0 +1,32 @@
+# AD PDFs (potentially sensitive/copyrighted)
+ADs/*.pdf
+
+# Excel data files (contain fleet-specific data)
+*.xlsx
+*.ods
+
+# Reports with operational data
+EASA_Reports/*.json
+EASA_Reports/*.html
+FAA_Reports/*.json
+Audit_Evidence/*.json
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+
+# IDE
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Keep directory structure
+!.gitkeep
