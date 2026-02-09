@@ -1,677 +1,1582 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CAMO Engineer AD Monitor | Aviation AI Dashboard</title>
-<style>
-  *{margin:0;padding:0;box-sizing:border-box}
-  :root{
-    --bg-primary:#0a0f1a;
-    --bg-secondary:#111827;
-    --bg-card:#1a2234;
-    --bg-card-hover:#1e2a40;
-    --border:#2a3a5c;
-    --text-primary:#e2e8f0;
-    --text-secondary:#94a3b8;
-    --text-muted:#64748b;
-    --accent-blue:#3b82f6;
-    --accent-cyan:#06b6d4;
-    --accent-green:#10b981;
-    --accent-amber:#f59e0b;
-    --accent-red:#ef4444;
-    --accent-purple:#8b5cf6;
-    --applicable:#10b981;
-    --not-applicable:#64748b;
-    --verification:#f59e0b;
-    --immediate:#ef4444;
-    --radius:8px;
-    --shadow:0 4px 24px rgba(0,0,0,.4);
-  }
-  body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg-primary);color:var(--text-primary);line-height:1.5;min-height:100vh}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AD/SB Compliance Dashboard - Fleet View</title>
+    <style>
+        :root {
+            --primary: #1a365d;
+            --accent-red: #e53e3e;
+            --accent-green: #38a169;
+            --accent-yellow: #d69e2e;
+            --accent-blue: #3182ce;
+            --accent-orange: #dd6b20;
+            --bg-light: #f7fafc;
+            --text-dark: #2d3748;
+            --border: #e2e8f0;
+        }
 
-  /* Header */
-  .header{background:linear-gradient(135deg,#0c1425 0%,#162038 50%,#0c1425 100%);border-bottom:1px solid var(--border);padding:20px 32px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;backdrop-filter:blur(12px)}
-  .header-left{display:flex;align-items:center;gap:16px}
-  .logo{width:48px;height:48px;background:linear-gradient(135deg,var(--accent-blue),var(--accent-cyan));border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;color:#fff;letter-spacing:-1px}
-  .header h1{font-size:22px;font-weight:700;letter-spacing:-.5px}
-  .header h1 span{color:var(--accent-cyan);font-weight:400}
-  .header-badge{background:var(--bg-card);border:1px solid var(--border);border-radius:20px;padding:6px 14px;font-size:12px;color:var(--text-secondary);display:flex;align-items:center;gap:6px}
-  .header-badge .dot{width:8px;height:8px;border-radius:50%;background:var(--accent-green);animation:pulse 2s infinite}
-  .header-right{display:flex;align-items:center;gap:12px}
-  .version-badge{background:var(--accent-blue);color:#fff;border-radius:6px;padding:4px 10px;font-size:11px;font-weight:600;letter-spacing:.5px}
-  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-  /* Main Layout */
-  .main{max-width:1400px;margin:0 auto;padding:24px 32px 48px}
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-light);
+            color: var(--text-dark);
+            line-height: 1.5;
+        }
 
-  /* KPI Cards */
-  .kpi-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:16px;margin-bottom:28px}
-  .kpi-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;position:relative;overflow:hidden;transition:transform .2s,border-color .2s}
-  .kpi-card:hover{transform:translateY(-2px);border-color:var(--accent-blue)}
-  .kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
-  .kpi-card.blue::before{background:var(--accent-blue)}
-  .kpi-card.green::before{background:var(--accent-green)}
-  .kpi-card.gray::before{background:var(--not-applicable)}
-  .kpi-card.amber::before{background:var(--accent-amber)}
-  .kpi-card.red::before{background:var(--accent-red)}
-  .kpi-card.purple::before{background:var(--accent-purple)}
-  .kpi-label{font-size:12px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px}
-  .kpi-value{font-size:32px;font-weight:700;letter-spacing:-1px}
-  .kpi-card.blue .kpi-value{color:var(--accent-blue)}
-  .kpi-card.green .kpi-value{color:var(--accent-green)}
-  .kpi-card.gray .kpi-value{color:var(--text-secondary)}
-  .kpi-card.amber .kpi-value{color:var(--accent-amber)}
-  .kpi-card.red .kpi-value{color:var(--accent-red)}
-  .kpi-card.purple .kpi-value{color:var(--accent-purple)}
-  .kpi-sub{font-size:12px;color:var(--text-muted);margin-top:4px}
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
 
-  /* Section Headers */
-  .section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;margin-top:8px}
-  .section-title{font-size:16px;font-weight:600;display:flex;align-items:center;gap:8px}
-  .section-title .icon{width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;border-radius:4px;font-size:12px}
+        /* Header */
+        .header {
+            background: var(--primary);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
 
-  /* Tabs */
-  .tabs{display:flex;gap:4px;background:var(--bg-secondary);border-radius:8px;padding:4px;border:1px solid var(--border)}
-  .tab{padding:8px 16px;border-radius:6px;font-size:13px;cursor:pointer;color:var(--text-secondary);border:none;background:none;transition:all .2s}
-  .tab:hover{color:var(--text-primary)}
-  .tab.active{background:var(--accent-blue);color:#fff;font-weight:600}
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
 
-  /* Tables */
-  .table-container{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:28px}
-  table{width:100%;border-collapse:collapse}
-  th{background:var(--bg-secondary);padding:12px 16px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--text-muted);border-bottom:1px solid var(--border);white-space:nowrap}
-  td{padding:12px 16px;border-bottom:1px solid rgba(42,58,92,.4);font-size:13px;color:var(--text-secondary)}
-  tr:hover td{background:var(--bg-card-hover);color:var(--text-primary)}
-  tr.clickable{cursor:pointer}
+        .header-info {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            font-size: 14px;
+            opacity: 0.9;
+        }
 
-  /* Status Badges */
-  .badge{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:.3px}
-  .badge-applicable{background:rgba(16,185,129,.15);color:var(--applicable)}
-  .badge-not-applicable{background:rgba(100,116,139,.15);color:var(--not-applicable)}
-  .badge-verification{background:rgba(245,158,11,.15);color:var(--verification)}
-  .badge-immediate{background:rgba(239,68,68,.2);color:var(--immediate);animation:urgentPulse 1.5s infinite}
-  .badge-faa{background:rgba(59,130,246,.15);color:var(--accent-blue)}
-  .badge-easa{background:rgba(139,92,246,.15);color:var(--accent-purple)}
-  .badge-mfr{background:rgba(6,182,212,.15);color:var(--accent-cyan)}
-  .badge-ad{background:rgba(245,158,11,.12);color:var(--accent-amber)}
-  .badge-sb{background:rgba(6,182,212,.12);color:var(--accent-cyan)}
-  @keyframes urgentPulse{0%,100%{opacity:1}50%{opacity:.7}}
+        .validation-status {
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
 
-  /* Detail Panel */
-  .detail-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:200;justify-content:center;align-items:center;backdrop-filter:blur(4px)}
-  .detail-overlay.visible{display:flex}
-  .detail-panel{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;width:720px;max-height:85vh;overflow-y:auto;box-shadow:var(--shadow);padding:32px}
-  .detail-panel h2{font-size:18px;margin-bottom:4px}
-  .detail-panel .subtitle{color:var(--text-muted);font-size:13px;margin-bottom:24px}
-  .detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px}
-  .detail-field{background:var(--bg-secondary);border:1px solid var(--border);border-radius:6px;padding:12px}
-  .detail-field.full{grid-column:1/-1}
-  .detail-field label{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--text-muted);margin-bottom:4px}
-  .detail-field .val{font-size:14px;color:var(--text-primary);font-weight:500}
-  .detail-close{position:absolute;top:16px;right:16px;background:none;border:none;color:var(--text-muted);font-size:24px;cursor:pointer;padding:4px}
-  .detail-close:hover{color:var(--text-primary)}
+        .validation-valid {
+            background: var(--accent-green);
+        }
 
-  /* Compliance Timeline */
-  .timeline-container{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:28px}
-  .timeline-row{display:flex;align-items:center;gap:16px;padding:10px 0;border-bottom:1px solid rgba(42,58,92,.3)}
-  .timeline-row:last-child{border-bottom:none}
-  .timeline-reg{width:70px;font-weight:600;font-size:13px;color:var(--accent-cyan)}
-  .timeline-ad{width:140px;font-size:12px;color:var(--text-secondary)}
-  .timeline-bar-wrap{flex:1;background:var(--bg-secondary);border-radius:4px;height:24px;position:relative;overflow:hidden}
-  .timeline-bar{height:100%;border-radius:4px;display:flex;align-items:center;padding:0 8px;font-size:11px;font-weight:600;color:#fff;white-space:nowrap;transition:width .6s ease}
-  .timeline-bar.urgent{background:linear-gradient(90deg,var(--accent-red),#dc2626)}
-  .timeline-bar.soon{background:linear-gradient(90deg,var(--accent-amber),#d97706)}
-  .timeline-bar.ok{background:linear-gradient(90deg,var(--accent-green),#059669)}
-  .timeline-bar.recurring{background:linear-gradient(90deg,var(--accent-blue),#2563eb)}
-  .timeline-deadline{width:120px;text-align:right;font-size:12px;color:var(--text-muted)}
+        /* Section */
+        .section {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
 
-  /* Fleet Cards */
-  .fleet-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px;margin-bottom:28px}
-  .fleet-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;transition:transform .2s,border-color .2s}
-  .fleet-card:hover{transform:translateY(-2px);border-color:var(--accent-cyan)}
-  .fleet-card .reg{font-size:20px;font-weight:700;color:var(--accent-cyan);margin-bottom:2px}
-  .fleet-card .model{font-size:14px;color:var(--text-primary);margin-bottom:12px}
-  .fleet-card .info{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-  .fleet-card .info-item{font-size:12px}
-  .fleet-card .info-item span{display:block;color:var(--text-muted);font-size:10px;text-transform:uppercase;letter-spacing:.5px}
-  .fleet-card .info-item strong{color:var(--text-primary);font-weight:600}
+        .section h2 {
+            font-size: 18px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+        }
 
-  /* Two-Column Layout */
-  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:24px}
-  .two-col.wide-left{grid-template-columns:2fr 1fr}
+        /* Latest ADs Banner */
+        .latest-ads-banner {
+            background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+            border: 2px solid var(--accent-orange);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 6px rgba(221, 107, 32, 0.15);
+        }
 
-  /* Authority Monitoring */
-  .monitor-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:16px}
-  .monitor-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
-  .monitor-title{font-size:14px;font-weight:600}
-  .monitor-stat{display:flex;gap:16px;margin-top:12px}
-  .monitor-stat-item{font-size:12px;color:var(--text-muted)}
-  .monitor-stat-item strong{color:var(--text-primary);display:block;font-size:18px}
+        .latest-ads-banner h2 {
+            color: #92400e;
+            font-size: 18px;
+            margin-bottom: 12px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #fbbf24;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
 
-  /* AI Badge Footer */
-  .footer{text-align:center;padding:32px;color:var(--text-muted);font-size:12px;border-top:1px solid var(--border);margin-top:16px}
-  .footer .ai-badge{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,rgba(59,130,246,.15),rgba(139,92,246,.15));border:1px solid rgba(139,92,246,.3);border-radius:20px;padding:8px 16px;margin-bottom:12px;font-size:13px;color:var(--accent-purple);font-weight:500}
-  .footer .ai-badge .sparkle{font-size:16px}
-  .footer a{color:var(--accent-blue);text-decoration:none}
-  .footer a:hover{text-decoration:underline}
+        .biweekly-badge {
+            display: inline-block;
+            background: var(--accent-orange);
+            color: white;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
 
-  /* Filter Bar */
-  .filter-bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-  .filter-btn{padding:6px 12px;border-radius:6px;font-size:12px;border:1px solid var(--border);background:var(--bg-secondary);color:var(--text-secondary);cursor:pointer;transition:all .2s}
-  .filter-btn:hover,.filter-btn.active{border-color:var(--accent-blue);color:var(--accent-blue);background:rgba(59,130,246,.08)}
+        .latest-ad-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 12px;
+        }
 
-  /* Responsive */
-  @media(max-width:1200px){.kpi-grid{grid-template-columns:repeat(3,1fr)}.two-col{grid-template-columns:1fr}}
-  @media(max-width:768px){.kpi-grid{grid-template-columns:repeat(2,1fr)}.header{padding:16px}.main{padding:16px}.fleet-grid{grid-template-columns:1fr}.header h1{font-size:16px}}
-</style>
+        .latest-ad-card {
+            background: white;
+            border-radius: 6px;
+            padding: 12px 15px;
+            border-left: 4px solid var(--accent-orange);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+        }
+
+        .latest-ad-card .ad-number {
+            font-weight: 700;
+            color: var(--accent-blue);
+            font-size: 14px;
+        }
+
+        .latest-ad-card .ad-number a {
+            color: var(--accent-blue);
+            text-decoration: none;
+        }
+
+        .latest-ad-card .ad-number a:hover {
+            text-decoration: underline;
+        }
+
+        .latest-ad-card .ad-date {
+            font-size: 12px;
+            color: #92400e;
+            font-weight: 600;
+        }
+
+        .latest-ad-card .ad-subject {
+            font-size: 13px;
+            color: #4a5568;
+            margin: 4px 0;
+        }
+
+        .latest-ad-card .ad-variants {
+            font-size: 11px;
+            color: #718096;
+        }
+
+        .latest-ad-card .ad-variants span {
+            display: inline-block;
+            background: #fef3c7;
+            padding: 1px 6px;
+            border-radius: 3px;
+            margin-right: 4px;
+            font-weight: 500;
+        }
+
+        /* Aircraft Grid */
+        .aircraft-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .aircraft-card {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            border-left: 4px solid var(--accent-green);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .aircraft-card.status-red {
+            border-left-color: var(--accent-red);
+        }
+
+        .aircraft-card.status-yellow {
+            border-left-color: var(--accent-yellow);
+        }
+
+        .aircraft-card h3 {
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+
+        .aircraft-card .model {
+            font-size: 12px;
+            color: #718096;
+            margin-bottom: 10px;
+        }
+
+        .aircraft-card .stats {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            font-size: 12px;
+        }
+
+        .aircraft-card .stat {
+            padding: 2px 8px;
+            border-radius: 4px;
+            background: var(--bg-light);
+        }
+
+        /* Filter Bar */
+        .filter-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .filter-bar label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        .filter-btn {
+            padding: 6px 16px;
+            border: 2px solid var(--border);
+            border-radius: 6px;
+            background: white;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .filter-btn:hover {
+            border-color: var(--accent-blue);
+            color: var(--accent-blue);
+        }
+
+        .filter-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .filter-btn .count {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 1px 6px;
+            border-radius: 10px;
+            font-size: 11px;
+            margin-left: 4px;
+        }
+
+        .filter-btn.active .count {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .doc-select {
+            padding: 6px 12px;
+            border: 2px solid var(--border);
+            border-radius: 6px;
+            font-size: 13px;
+            min-width: 280px;
+            margin-left: auto;
+            background: white;
+            cursor: pointer;
+        }
+
+        .doc-select:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+        }
+
+        /* Custom tooltip for compliance dates */
+        .m-cell.complied, .sb-cell.complied {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .m-cell.complied:hover::after, .sb-cell.complied:hover::after {
+            content: attr(data-date);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1a365d;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 500;
+            white-space: nowrap;
+            z-index: 100;
+            pointer-events: none;
+        }
+
+        .m-cell.complied:hover::before, .sb-cell.complied:hover::before {
+            content: '';
+            position: absolute;
+            bottom: calc(100% - 4px);
+            left: 50%;
+            transform: translateX(-50%);
+            border: 4px solid transparent;
+            border-top-color: #1a365d;
+            z-index: 100;
+            pointer-events: none;
+        }
+
+        /* AD Matrix */
+        .ad-matrix-wrapper {
+            overflow-x: auto;
+            position: relative;
+        }
+
+        .ad-matrix {
+            border-collapse: separate;
+            border-spacing: 0;
+            font-size: 12px;
+            width: auto;
+            min-width: 100%;
+        }
+
+        .ad-matrix thead th {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background: var(--bg-light);
+            padding: 5px 4px;
+            text-align: center;
+            font-size: 11px;
+            border-bottom: 2px solid var(--border);
+            white-space: nowrap;
+            cursor: default;
+        }
+
+        .ad-matrix thead th:hover {
+            background: #e2e8f0;
+        }
+
+        .ad-matrix thead th.variant-header {
+            background: var(--primary);
+            color: white;
+            font-size: 12px;
+            font-weight: 700;
+            text-align: center;
+            padding: 6px 8px;
+        }
+
+        .ad-matrix thead th.ac-header {
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            height: 90px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .ad-matrix thead th.ac-header:hover {
+            background: #cbd5e0;
+        }
+
+        .ad-matrix thead th.ac-header.highlighted {
+            background: #bee3f8;
+        }
+
+        .ad-matrix thead th.sticky-col {
+            position: sticky;
+            left: 0;
+            z-index: 20;
+            background: var(--bg-light);
+            text-align: left;
+            min-width: 300px;
+            max-width: 350px;
+        }
+
+        .ad-matrix tbody td.sticky-col {
+            position: sticky;
+            left: 0;
+            z-index: 5;
+            background: white;
+            min-width: 300px;
+            max-width: 350px;
+            padding: 8px 10px;
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+        }
+
+        .ad-matrix tbody td.sticky-col:hover {
+            background: #edf2f7;
+        }
+
+        .ad-matrix tbody td {
+            text-align: center;
+            padding: 4px 3px;
+            border-bottom: 1px solid var(--border);
+            min-width: 42px;
+        }
+
+        .ad-matrix .ad-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .ad-matrix .ad-info .ad-num {
+            font-weight: 700;
+            color: var(--accent-blue);
+            font-size: 12px;
+        }
+
+        .ad-matrix .ad-info .ad-num a {
+            color: var(--accent-blue);
+            text-decoration: none;
+        }
+
+        .ad-matrix .ad-info .ad-num a:hover {
+            text-decoration: underline;
+        }
+
+        .ad-matrix .ad-info .ad-ata {
+            font-size: 10px;
+            color: #a0aec0;
+            font-weight: 600;
+        }
+
+        .ad-matrix .ad-info .ad-subj {
+            font-size: 11px;
+            color: #718096;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 280px;
+        }
+
+        /* Matrix cells */
+        .m-cell {
+            display: inline-block;
+            width: 26px;
+            height: 26px;
+            border-radius: 4px;
+            line-height: 26px;
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .m-cell.open {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+
+        .m-cell.complied {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+
+        .m-cell.na {
+            background: #edf2f7;
+            color: #a0aec0;
+        }
+
+        /* Expandable detail row */
+        .detail-row {
+            display: none;
+        }
+
+        .detail-row.expanded {
+            display: table-row;
+        }
+
+        .detail-row td {
+            background: #f7fafc;
+            padding: 12px 15px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .detail-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 8px;
+        }
+
+        .detail-ac {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            padding: 4px 8px;
+            background: white;
+            border-radius: 4px;
+        }
+
+        .detail-ac .ac-reg {
+            font-weight: 600;
+            min-width: 70px;
+        }
+
+        /* Status badges */
+        .status-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-accomplished {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+
+        .status-open {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+
+        .status-mandatory {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+
+        .status-recommended {
+            background: #fefcbf;
+            color: #744210;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .stat-card {
+            text-align: center;
+            padding: 15px;
+            background: var(--bg-light);
+            border-radius: 8px;
+        }
+
+        .stat-card .value {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .stat-card .value.green { color: var(--accent-green); }
+        .stat-card .value.red { color: var(--accent-red); }
+        .stat-card .value.yellow { color: var(--accent-yellow); }
+
+        .stat-card .label {
+            font-size: 12px;
+            color: #718096;
+            margin-top: 5px;
+        }
+
+        /* Progress bar */
+        .progress-bar-container {
+            width: 100%;
+            background: #e2e8f0;
+            border-radius: 8px;
+            height: 24px;
+            margin: 15px 0;
+            overflow: hidden;
+            display: flex;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 600;
+            color: white;
+            transition: width 0.5s;
+        }
+
+        .progress-accomplished { background: var(--accent-green); }
+        .progress-open { background: var(--accent-red); }
+
+        /* SB Matrix */
+        .sb-matrix {
+            overflow-x: auto;
+        }
+
+        .sb-matrix table {
+            font-size: 12px;
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .sb-matrix th {
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            height: 100px;
+            padding: 5px;
+            white-space: nowrap;
+            background: var(--bg-light);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .sb-matrix td {
+            text-align: center;
+            padding: 5px 8px;
+            min-width: 40px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .sb-cell {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            border-radius: 4px;
+            line-height: 24px;
+            font-size: 10px;
+            font-weight: 600;
+        }
+
+        .sb-cell.open {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+
+        .sb-cell.complied {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+
+        .sb-cell.na {
+            background: #e2e8f0;
+            color: #718096;
+        }
+
+        /* SB Summary Cards */
+        .sb-summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .sb-card {
+            background: var(--bg-light);
+            border-radius: 8px;
+            padding: 15px;
+            border-left: 4px solid var(--primary);
+        }
+
+        .sb-card.mandatory {
+            border-left-color: var(--accent-red);
+        }
+
+        .sb-card.recommended {
+            border-left-color: var(--accent-yellow);
+        }
+
+        .sb-card h4 {
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .sb-card .sb-details {
+            font-size: 12px;
+            color: #718096;
+        }
+
+        /* Recent Changes */
+        .change-item {
+            padding: 10px;
+            border-left: 3px solid var(--border);
+            margin-bottom: 10px;
+        }
+
+        .change-item.new {
+            border-left-color: var(--accent-green);
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #718096;
+            font-size: 12px;
+        }
+
+        /* Print styles */
+        @media print {
+            .container {
+                max-width: 100%;
+            }
+            .filter-bar {
+                display: none;
+            }
+            .ad-matrix thead th.ac-header {
+                writing-mode: horizontal-tb;
+                height: auto;
+            }
+            .sb-matrix th {
+                writing-mode: horizontal-tb;
+                height: auto;
+            }
+        }
+
+        /* Row new-ad highlight */
+        tr.new-ad td.sticky-col {
+            border-left: 3px solid var(--accent-orange);
+        }
+
+        /* Expand icon */
+        .expand-icon {
+            display: inline-block;
+            width: 16px;
+            font-size: 10px;
+            color: #a0aec0;
+            transition: transform 0.2s;
+        }
+
+        .expand-icon.rotated {
+            transform: rotate(90deg);
+        }
+
+        td a {
+            color: var(--accent-blue);
+            text-decoration: none;
+        }
+
+        td a:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
 <body>
-
-<!-- HEADER -->
-<header class="header">
-  <div class="header-left">
-    <div class="logo">AD</div>
-    <div>
-      <h1>CAMO Engineer <span>AD Monitor</span></h1>
-      <div style="font-size:12px;color:var(--text-muted)">Airworthiness Directive & Service Bulletin Evaluator</div>
-    </div>
-  </div>
-  <div class="header-right">
-    <div class="header-badge"><span class="dot"></span> Monitoring Active</div>
-    <div class="version-badge">v6.3</div>
-  </div>
-</header>
-
-<!-- MAIN -->
-<main class="main">
-
-  <!-- KPI CARDS -->
-  <div class="kpi-grid">
-    <div class="kpi-card blue">
-      <div class="kpi-label">ADs Evaluated</div>
-      <div class="kpi-value">8</div>
-      <div class="kpi-sub">Last 30 days</div>
-    </div>
-    <div class="kpi-card green">
-      <div class="kpi-label">Applicable</div>
-      <div class="kpi-value">5</div>
-      <div class="kpi-sub">Require action</div>
-    </div>
-    <div class="kpi-card gray">
-      <div class="kpi-label">Not Applicable</div>
-      <div class="kpi-value">2</div>
-      <div class="kpi-sub">No action needed</div>
-    </div>
-    <div class="kpi-card amber">
-      <div class="kpi-label">Needs Verification</div>
-      <div class="kpi-value">1</div>
-      <div class="kpi-sub">Component check</div>
-    </div>
-    <div class="kpi-card red">
-      <div class="kpi-label">Immediate Actions</div>
-      <div class="kpi-value">1</div>
-      <div class="kpi-sub">Before next flight</div>
-    </div>
-    <div class="kpi-card purple">
-      <div class="kpi-label">AMP Updates</div>
-      <div class="kpi-value">3</div>
-      <div class="kpi-sub">Recurring items</div>
-    </div>
-  </div>
-
-  <!-- FLEET OVERVIEW -->
-  <div class="section-header">
-    <div class="section-title"><span class="icon" style="background:rgba(6,182,212,.15);color:var(--accent-cyan)">F</span> Fleet Overview</div>
-  </div>
-  <div class="fleet-grid">
-    <div class="fleet-card">
-      <div class="reg">N847ST</div>
-      <div class="model">Pilatus PC-12/47</div>
-      <div class="info">
-        <div class="info-item"><span>MSN</span><strong>1247</strong></div>
-        <div class="info-item"><span>Total Hours</span><strong>3,850</strong></div>
-        <div class="info-item"><span>Landings</span><strong>4,200</strong></div>
-        <div class="info-item"><span>Engine</span><strong>PT6A-67P</strong></div>
-      </div>
-    </div>
-    <div class="fleet-card">
-      <div class="reg">N848ST</div>
-      <div class="model">Pilatus PC-12/47E</div>
-      <div class="info">
-        <div class="info-item"><span>MSN</span><strong>1305</strong></div>
-        <div class="info-item"><span>Total Hours</span><strong>5,200</strong></div>
-        <div class="info-item"><span>Landings</span><strong>5,850</strong></div>
-        <div class="info-item"><span>Engine</span><strong>PT6A-67P</strong></div>
-      </div>
-    </div>
-    <div class="fleet-card">
-      <div class="reg">N849ST</div>
-      <div class="model">Pilatus PC-12/45</div>
-      <div class="info">
-        <div class="info-item"><span>MSN</span><strong>688</strong></div>
-        <div class="info-item"><span>Total Hours</span><strong>8,100</strong></div>
-        <div class="info-item"><span>Landings</span><strong>9,340</strong></div>
-        <div class="info-item"><span>Engine</span><strong>PT6A-67B</strong></div>
-      </div>
-    </div>
-    <div class="fleet-card">
-      <div class="reg">N850ST</div>
-      <div class="model">Airbus A320-214</div>
-      <div class="info">
-        <div class="info-item"><span>MSN</span><strong>4521</strong></div>
-        <div class="info-item"><span>Total Hours</span><strong>22,400</strong></div>
-        <div class="info-item"><span>Landings</span><strong>14,800</strong></div>
-        <div class="info-item"><span>Engine</span><strong>CFM56-5B4/3</strong></div>
-      </div>
-    </div>
-    <div class="fleet-card">
-      <div class="reg">N851ST</div>
-      <div class="model">Airbus A320-251N</div>
-      <div class="info">
-        <div class="info-item"><span>MSN</span><strong>9876</strong></div>
-        <div class="info-item"><span>Total Hours</span><strong>6,800</strong></div>
-        <div class="info-item"><span>Landings</span><strong>4,500</strong></div>
-        <div class="info-item"><span>Engine</span><strong>LEAP-1A26</strong></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- AD EVALUATION RESULTS -->
-  <div class="section-header">
-    <div class="section-title"><span class="icon" style="background:rgba(59,130,246,.15);color:var(--accent-blue)">E</span> AD/SB Evaluation Results</div>
-    <div class="filter-bar">
-      <button class="filter-btn active" onclick="filterTable('all')">All</button>
-      <button class="filter-btn" onclick="filterTable('APPLICABLE')">Applicable</button>
-      <button class="filter-btn" onclick="filterTable('NOT APPLICABLE')">Not Applicable</button>
-      <button class="filter-btn" onclick="filterTable('REQUIRES VERIFICATION')">Verification</button>
-    </div>
-  </div>
-  <div class="table-container">
-    <table id="evalTable">
-      <thead>
-        <tr>
-          <th>Document</th>
-          <th>Type</th>
-          <th>Authority</th>
-          <th>Subject</th>
-          <th>Aircraft</th>
-          <th>Applicability</th>
-          <th>Compliance</th>
-          <th>AMP</th>
-        </tr>
-      </thead>
-      <tbody id="evalBody"></tbody>
-    </table>
-  </div>
-
-  <!-- TWO COLUMN: Timeline + Authority Monitoring -->
-  <div class="two-col wide-left">
-    <div>
-      <div class="section-header">
-        <div class="section-title"><span class="icon" style="background:rgba(245,158,11,.15);color:var(--accent-amber)">T</span> Compliance Timeline</div>
-      </div>
-      <div class="timeline-container" id="timelineContainer"></div>
-    </div>
-    <div>
-      <div class="section-header">
-        <div class="section-title"><span class="icon" style="background:rgba(139,92,246,.15);color:var(--accent-purple)">M</span> Authority Monitoring</div>
-      </div>
-      <div class="monitor-card">
-        <div class="monitor-header">
-          <div class="monitor-title"><span class="badge badge-faa">FAA</span></div>
-          <div style="font-size:11px;color:var(--text-muted)">Last check: 2026-02-07</div>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>AD/SB COMPLIANCE DASHBOARD — Fleet View v6.3</h1>
+            <div class="header-info">
+                <span>Fleet: PC-12 Fleet | 20 Aircraft | 4 Variants</span>
+                <span>Generated: 2026-02-08 13:23 UTC</span>
+                <span>Last EASA Check: 2026-02-06</span>
+                <span>Last FAA Check: 2026-02-03</span>
+                <span class="validation-status validation-valid">VALID</span>
+            </div>
         </div>
-        <div class="monitor-stat">
-          <div class="monitor-stat-item"><strong>4</strong>ADs Checked</div>
-          <div class="monitor-stat-item"><strong>3</strong>Applicable</div>
-          <div class="monitor-stat-item"><strong>1</strong>Emergency</div>
-        </div>
-      </div>
-      <div class="monitor-card">
-        <div class="monitor-header">
-          <div class="monitor-title"><span class="badge badge-easa">EASA</span></div>
-          <div style="font-size:11px;color:var(--text-muted)">Last check: 2026-02-06</div>
-        </div>
-        <div class="monitor-stat">
-          <div class="monitor-stat-item"><strong>3</strong>ADs Checked</div>
-          <div class="monitor-stat-item"><strong>2</strong>Applicable</div>
-          <div class="monitor-stat-item"><strong>0</strong>Emergency</div>
-        </div>
-      </div>
-      <div class="monitor-card">
-        <div class="monitor-header">
-          <div class="monitor-title"><span class="badge badge-mfr">Manufacturer</span></div>
-          <div style="font-size:11px;color:var(--text-muted)">Last check: 2026-02-05</div>
-        </div>
-        <div class="monitor-stat">
-          <div class="monitor-stat-item"><strong>1</strong>SBs Checked</div>
-          <div class="monitor-stat-item"><strong>1</strong>Applicable</div>
-          <div class="monitor-stat-item"><strong>0</strong>Emergency</div>
-        </div>
-      </div>
 
-      <!-- Token Efficiency -->
-      <div class="section-header" style="margin-top:24px">
-        <div class="section-title"><span class="icon" style="background:rgba(16,185,129,.15);color:var(--accent-green)">$</span> Token Efficiency</div>
-      </div>
-      <div class="monitor-card">
-        <div style="font-size:13px;color:var(--text-secondary);margin-bottom:12px">AI processing cost optimization</div>
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-          <span style="font-size:12px;color:var(--text-muted)">Traditional (all ADs via LLM)</span>
-          <span style="font-size:13px;color:var(--accent-red);font-weight:600">96,000 tokens</span>
+        <!-- Latest Published ADs -->
+        <div class="latest-ads-banner">
+            <h2>
+                Latest Published Fleet ADs
+                <span class="biweekly-badge">New in last bi-weekly cycle (14 days)</span>
+            </h2>
+            <div class="latest-ad-cards">
+                <div class="latest-ad-card">
+                    <div style="display:flex;justify-content:space-between;align-items:center">
+                        <span class="ad-number"><a href="https://ad.easa.europa.eu/ad/2026-0010" target="_blank" rel="noopener">EASA 2026-0010</a></span>
+                        <span class="ad-date">2026-02-06</span>
+                    </div>
+                    <div class="ad-subject">ALS Rev. 23 – Amendment</div>
+                    <div class="ad-variants">
+                        <span>PC-12</span><span>PC-12/45</span><span>PC-12/47</span><span>PC-12/47E</span>
+                    </div>
+                </div>
+                <div class="latest-ad-card">
+                    <div style="display:flex;justify-content:space-between;align-items:center">
+                        <span class="ad-number"><a href="https://ad.easa.europa.eu/ad/2026-0008" target="_blank" rel="noopener">EASA 2026-0008</a></span>
+                        <span class="ad-date">2026-02-04</span>
+                    </div>
+                    <div class="ad-subject">Engine Mount Forward Attach Bolt – Inspection</div>
+                    <div class="ad-variants">
+                        <span>PC-12/47</span><span>PC-12/47E</span>
+                    </div>
+                </div>
+                <div class="latest-ad-card">
+                    <div style="display:flex;justify-content:space-between;align-items:center">
+                        <span class="ad-number"><a href="https://ad.easa.europa.eu/ad/2026-0006" target="_blank" rel="noopener">EASA 2026-0006</a></span>
+                        <span class="ad-date">2026-01-30</span>
+                    </div>
+                    <div class="ad-subject">Aft Pressure Bulkhead Rivets – Inspection</div>
+                    <div class="ad-variants">
+                        <span>PC-12</span><span>PC-12/45</span><span>PC-12/47</span><span>PC-12/47E</span>
+                    </div>
+                </div>
+                <div class="latest-ad-card">
+                    <div style="display:flex;justify-content:space-between;align-items:center">
+                        <span class="ad-number"><a href="https://ad.easa.europa.eu/ad/2026-0005" target="_blank" rel="noopener">EASA 2026-0005</a></span>
+                        <span class="ad-date">2026-01-28</span>
+                    </div>
+                    <div class="ad-subject">Primus APEX II AHRS Software – Modification</div>
+                    <div class="ad-variants">
+                        <span>PC-12/47E</span>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div style="background:var(--bg-secondary);border-radius:4px;height:8px;margin-bottom:16px">
-          <div style="width:100%;height:100%;background:var(--accent-red);border-radius:4px;opacity:.5"></div>
+
+        <!-- Fleet AD Compliance Statistics -->
+        <div class="section">
+            <h2>Fleet AD Compliance Overview</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="value">14</div>
+                    <div class="label">Fleet ADs (PC-12)</div>
+                </div>
+                <div class="stat-card">
+                    <div class="value red">8</div>
+                    <div class="label">Open</div>
+                </div>
+                <div class="stat-card">
+                    <div class="value green">6</div>
+                    <div class="label">Accomplished</div>
+                </div>
+                <div class="stat-card">
+                    <div class="value">43%</div>
+                    <div class="label">Compliance Rate</div>
+                </div>
+                <div class="stat-card">
+                    <div class="value yellow">4</div>
+                    <div class="label">New (Last 14 days)</div>
+                </div>
+                <div class="stat-card">
+                    <div class="value">7</div>
+                    <div class="label">Total SBs Tracked</div>
+                </div>
+            </div>
+            <div class="progress-bar-container" style="margin-top:15px">
+                <div class="progress-bar-fill progress-accomplished" style="width:43%">43% Accomplished</div>
+                <div class="progress-bar-fill progress-open" style="width:57%">57% Open</div>
+            </div>
         </div>
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-          <span style="font-size:12px;color:var(--text-muted)">CAMO Monitor (HTML parse + filter)</span>
-          <span style="font-size:13px;color:var(--accent-green);font-weight:600">8,000 tokens</span>
+
+        <!-- Fleet AD Compliance Matrix -->
+        <div class="section">
+            <h2>Fleet AD Compliance Matrix</h2>
+            <div class="filter-bar">
+                <label>Status:</label>
+                <button class="filter-btn active" onclick="filterMatrix('all')" id="mfilter-all">All <span class="count">14</span></button>
+                <button class="filter-btn" onclick="filterMatrix('open')" id="mfilter-open">Open <span class="count">8</span></button>
+                <button class="filter-btn" onclick="filterMatrix('accomplished')" id="mfilter-accomplished">Accomplished <span class="count">6</span></button>
+                <select class="doc-select" onchange="selectAD(this.value)" id="adSelect">
+                    <option value="all">Show All ADs (14)</option>
+                    <option value="2026-0010">EASA 2026-0010 — ALS Rev. 23 Amendment</option>
+                    <option value="2026-0008">EASA 2026-0008 — Engine Mount Fwd Attach Bolt</option>
+                    <option value="2026-0006">EASA 2026-0006 — Aft Pressure Bulkhead Rivets</option>
+                    <option value="2026-0005">EASA 2026-0005 — Primus APEX II AHRS Software</option>
+                    <option value="2025-0310">EASA 2025-0310 — MLG Trunnion Fitting</option>
+                    <option value="2025-0308">EASA 2025-0308 — Aileron Trim Tab Hinge</option>
+                    <option value="2025-0305">EASA 2025-0305 — Wing Fuel Tank Vent Valve</option>
+                    <option value="2025-0303">EASA 2025-0303 — Windshield Anti-Ice Controller</option>
+                    <option value="2025-0301">EASA 2025-0301 — Generator Control Unit</option>
+                    <option value="2025-0299">EASA 2025-0299 — Wing Root Rib Attach Fittings</option>
+                    <option value="2025-0295P">EASA 2025-0295P — PT6A-67P CT Blade Borescope</option>
+                    <option value="2025-0290P">EASA 2025-0290P — Passenger Oxygen Mask Drop</option>
+                    <option value="2025-0285P">EASA 2025-0285P — Cockpit Side Window Seal</option>
+                    <option value="2025-0280P">EASA 2025-0280P — GPS/SBAS Receiver Software</option>
+                </select>
+            </div>
+            <div class="ad-matrix-wrapper">
+                <table class="ad-matrix" id="adMatrix">
+                    <thead>
+                        <!-- Variant group headers -->
+                        <tr>
+                            <th class="sticky-col" rowspan="2" style="vertical-align:bottom;border-bottom:2px solid var(--border)">AD / Aircraft</th>
+                            <th class="variant-header" colspan="2">PC-12</th>
+                            <th class="variant-header" colspan="3">PC-12/45</th>
+                            <th class="variant-header" colspan="6">PC-12/47</th>
+                            <th class="variant-header" colspan="9">PC-12/47E</th>
+                        </tr>
+                        <!-- Aircraft registration headers -->
+                        <tr>
+                            <th class="ac-header" onclick="highlightCol(1)" data-col="1">N101PA</th>
+                            <th class="ac-header" onclick="highlightCol(2)" data-col="2">N215PC</th>
+                            <th class="ac-header" onclick="highlightCol(3)" data-col="3">N312ST</th>
+                            <th class="ac-header" onclick="highlightCol(4)" data-col="4">N455PA</th>
+                            <th class="ac-header" onclick="highlightCol(5)" data-col="5">HB-FQA</th>
+                            <th class="ac-header" onclick="highlightCol(6)" data-col="6">N601AC</th>
+                            <th class="ac-header" onclick="highlightCol(7)" data-col="7">N720WA</th>
+                            <th class="ac-header" onclick="highlightCol(8)" data-col="8">D-FLYA</th>
+                            <th class="ac-header" onclick="highlightCol(9)" data-col="9">N988ST</th>
+                            <th class="ac-header" onclick="highlightCol(10)" data-col="10">N847ST</th>
+                            <th class="ac-header" onclick="highlightCol(11)" data-col="11">OE-EMZ</th>
+                            <th class="ac-header" onclick="highlightCol(12)" data-col="12">N1601E</th>
+                            <th class="ac-header" onclick="highlightCol(13)" data-col="13">N1755NG</th>
+                            <th class="ac-header" onclick="highlightCol(14)" data-col="14">HB-FWX</th>
+                            <th class="ac-header" onclick="highlightCol(15)" data-col="15">N2050PA</th>
+                            <th class="ac-header" onclick="highlightCol(16)" data-col="16">D-FNEW</th>
+                            <th class="ac-header" onclick="highlightCol(17)" data-col="17">N2345ST</th>
+                            <th class="ac-header" onclick="highlightCol(18)" data-col="18">OE-NEW</th>
+                            <th class="ac-header" onclick="highlightCol(19)" data-col="19">N2750EX</th>
+                            <th class="ac-header" onclick="highlightCol(20)" data-col="20">N2901NG</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+<!-- AD Row 1: 2026-0010 - ALL variants - Open -->
+<tr class="ad-row new-ad" data-status="open" data-ad="2026-0010" onclick="toggleDetail('d1')">
+    <td class="sticky-col"><span class="expand-icon" id="ei-d1">&#9654;</span><div class="ad-info"><span class="ad-num"><a href="https://ad.easa.europa.eu/ad/2026-0010" target="_blank" onclick="event.stopPropagation()">EASA 2026-0010</a></span><span class="ad-ata">ATA 05</span><span class="ad-subj">ALS Rev. 23 – Amendment</span></div></td>
+    <td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td>
+    <td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td>
+    <td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td>
+    <td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td>
+</tr>
+<tr class="detail-row" id="d1"><td colspan="21"><div class="detail-content">
+    <div class="detail-ac"><span class="ac-reg">N101PA</span><span class="m-cell open">O</span></div>
+    <div class="detail-ac"><span class="ac-reg">N215PC</span><span class="m-cell open">O</span></div>
+    <div class="detail-ac"><span class="ac-reg">N312ST</span><span class="m-cell open">O</span></div>
+    <div class="detail-ac"><span class="ac-reg">N455PA</span><span class="m-cell open">O</span></div>
+    <div class="detail-ac"><span class="ac-reg">HB-FQA</span><span class="m-cell open">O</span></div>
+    <div class="detail-ac"><span class="ac-reg">N601AC</span><span class="m-cell open">O</span></div>
+    <div class="detail-ac"><span class="ac-reg">N720WA</span><span class="m-cell open">O</span></div>
+    <div class="detail-ac"><span class="ac-reg">D-FLYA</span><span class="m-cell open">O</span></div>
+    <div class="detail-ac"><span class="ac-reg">N988ST</span><span class="m-cell open">O</span></div>
+    <div class="detail-ac"><span class="ac-reg">N847ST</span><span class="m-cell open">O</span></div>
+    <div class="detail-ac"><span class="ac-reg">OE-EMZ</span><span class="m-cell open">O</span></div>
+    <div class="detail-ac"><span class="ac-reg">N1601E</span><span class="m-cell open">O</span></div>
+    <div class="detail-ac"><span class="ac-reg">N1755NG</span><span class="m-cell open">O</span></div>
+    <div class="detail-ac"><span class="ac-reg">HB-FWX</span><span class="m-cell open">O</span></div>
+    <div class="detail-ac"><span class="ac-reg">N2050PA</span><span class="m-cell open">O</span></div>
+    <div class="detail-ac"><span class="ac-reg">D-FNEW</span><span class="m-cell open">O</span></div>
+    <div class="detail-ac"><span class="ac-reg">N2345ST</span><span class="m-cell open">O</span></div>
+    <div class="detail-ac"><span class="ac-reg">OE-NEW</span><span class="m-cell open">O</span></div>
+    <div class="detail-ac"><span class="ac-reg">N2750EX</span><span class="m-cell open">O</span></div>
+    <div class="detail-ac"><span class="ac-reg">N2901NG</span><span class="m-cell open">O</span></div>
+</div></td></tr>
+
+<!-- AD Row 2: 2026-0008 - PC-12/47 + PC-12/47E only - Open -->
+<tr class="ad-row new-ad" data-status="open" data-ad="2026-0008" onclick="toggleDetail('d2')">
+    <td class="sticky-col"><span class="expand-icon" id="ei-d2">&#9654;</span><div class="ad-info"><span class="ad-num"><a href="https://ad.easa.europa.eu/ad/2026-0008" target="_blank" onclick="event.stopPropagation()">EASA 2026-0008</a></span><span class="ad-ata">ATA 71</span><span class="ad-subj">Engine Mount Forward Attach Bolt – Inspection</span></div></td>
+    <td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td>
+    <td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td>
+    <td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td>
+    <td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td>
+</tr>
+<tr class="detail-row" id="d2"><td colspan="21"><div class="detail-content">
+    <div class="detail-ac"><span class="ac-reg">N101PA</span><span class="m-cell na">N/A</span> <span style="font-size:11px;color:#a0aec0">PC-12</span></div>
+    <div class="detail-ac"><span class="ac-reg">N215PC</span><span class="m-cell na">N/A</span> <span style="font-size:11px;color:#a0aec0">PC-12</span></div>
+    <div class="detail-ac"><span class="ac-reg">N312ST</span><span class="m-cell na">N/A</span> <span style="font-size:11px;color:#a0aec0">PC-12/45</span></div>
+    <div class="detail-ac"><span class="ac-reg">N455PA</span><span class="m-cell na">N/A</span> <span style="font-size:11px;color:#a0aec0">PC-12/45</span></div>
+    <div class="detail-ac"><span class="ac-reg">HB-FQA</span><span class="m-cell na">N/A</span> <span style="font-size:11px;color:#a0aec0">PC-12/45</span></div>
+    <div class="detail-ac"><span class="ac-reg">N601AC</span><span class="m-cell open">O</span></div>
+    <div class="detail-ac"><span class="ac-reg">N720WA</span><span class="m-cell open">O</span></div>
+    <div class="detail-ac"><span class="ac-reg">D-FLYA</span><span class="m-cell open">O</span></div>
+    <div class="detail-ac"><span class="ac-reg">N988ST</span><span class="m-cell open">O</span></div>
+    <div class="detail-ac"><span class="ac-reg">N847ST</span><span class="m-cell open">O</span></div>
+    <div class="detail-ac"><span class="ac-reg">OE-EMZ</span><span class="m-cell open">O</span></div>
+    <div class="detail-ac"><span class="ac-reg">N1601E</span><span class="m-cell open">O</span></div>
+    <div class="detail-ac"><span class="ac-reg">N1755NG</span><span class="m-cell open">O</span></div>
+    <div class="detail-ac"><span class="ac-reg">HB-FWX</span><span class="m-cell open">O</span></div>
+    <div class="detail-ac"><span class="ac-reg">N2050PA</span><span class="m-cell open">O</span></div>
+    <div class="detail-ac"><span class="ac-reg">D-FNEW</span><span class="m-cell open">O</span></div>
+    <div class="detail-ac"><span class="ac-reg">N2345ST</span><span class="m-cell open">O</span></div>
+    <div class="detail-ac"><span class="ac-reg">OE-NEW</span><span class="m-cell open">O</span></div>
+    <div class="detail-ac"><span class="ac-reg">N2750EX</span><span class="m-cell open">O</span></div>
+    <div class="detail-ac"><span class="ac-reg">N2901NG</span><span class="m-cell open">O</span></div>
+</div></td></tr>
+
+<!-- AD Row 3: 2026-0006 - ALL variants - Accomplished -->
+<tr class="ad-row new-ad" data-status="accomplished" data-ad="2026-0006" onclick="toggleDetail('d3')">
+    <td class="sticky-col"><span class="expand-icon" id="ei-d3">&#9654;</span><div class="ad-info"><span class="ad-num"><a href="https://ad.easa.europa.eu/ad/2026-0006" target="_blank" onclick="event.stopPropagation()">EASA 2026-0006</a></span><span class="ad-ata">ATA 53</span><span class="ad-subj">Aft Pressure Bulkhead Rivets – Inspection</span></div></td>
+    <td><span class="m-cell complied" data-date="2026-01-08">C</span></td><td><span class="m-cell complied" data-date="2026-01-12">C</span></td>
+    <td><span class="m-cell complied" data-date="2026-01-15">C</span></td><td><span class="m-cell complied" data-date="2026-01-06">C</span></td><td><span class="m-cell complied" data-date="2026-01-19">C</span></td>
+    <td><span class="m-cell complied" data-date="2026-01-10">C</span></td><td><span class="m-cell complied" data-date="2026-01-22">C</span></td><td><span class="m-cell complied" data-date="2026-01-03">C</span></td><td><span class="m-cell complied" data-date="2026-01-17">C</span></td><td><span class="m-cell complied" data-date="2026-01-14">C</span></td><td><span class="m-cell complied" data-date="2026-01-25">C</span></td>
+    <td><span class="m-cell complied" data-date="2026-01-20">C</span></td><td><span class="m-cell complied" data-date="2026-01-11">C</span></td><td><span class="m-cell complied" data-date="2026-01-28">C</span></td><td><span class="m-cell complied" data-date="2026-01-05">C</span></td><td><span class="m-cell complied" data-date="2026-01-16">C</span></td><td><span class="m-cell complied" data-date="2026-01-23">C</span></td><td><span class="m-cell complied" data-date="2026-01-09">C</span></td><td><span class="m-cell complied" data-date="2026-01-30">C</span></td><td><span class="m-cell complied" data-date="2026-01-18">C</span></td>
+</tr>
+<tr class="detail-row" id="d3"><td colspan="21"><div class="detail-content">
+    <div class="detail-ac"><span class="ac-reg">N101PA</span><span class="m-cell complied">C</span> 2026-01-08</div>
+    <div class="detail-ac"><span class="ac-reg">N215PC</span><span class="m-cell complied">C</span> 2026-01-12</div>
+    <div class="detail-ac"><span class="ac-reg">N312ST</span><span class="m-cell complied">C</span> 2026-01-15</div>
+    <div class="detail-ac"><span class="ac-reg">N455PA</span><span class="m-cell complied">C</span> 2026-01-06</div>
+    <div class="detail-ac"><span class="ac-reg">HB-FQA</span><span class="m-cell complied">C</span> 2026-01-19</div>
+    <div class="detail-ac"><span class="ac-reg">N601AC</span><span class="m-cell complied">C</span> 2026-01-10</div>
+    <div class="detail-ac"><span class="ac-reg">N720WA</span><span class="m-cell complied">C</span> 2026-01-22</div>
+    <div class="detail-ac"><span class="ac-reg">D-FLYA</span><span class="m-cell complied">C</span> 2026-01-03</div>
+    <div class="detail-ac"><span class="ac-reg">N988ST</span><span class="m-cell complied">C</span> 2026-01-17</div>
+    <div class="detail-ac"><span class="ac-reg">N847ST</span><span class="m-cell complied">C</span> 2026-01-14</div>
+    <div class="detail-ac"><span class="ac-reg">OE-EMZ</span><span class="m-cell complied">C</span> 2026-01-25</div>
+    <div class="detail-ac"><span class="ac-reg">N1601E</span><span class="m-cell complied">C</span> 2026-01-20</div>
+    <div class="detail-ac"><span class="ac-reg">N1755NG</span><span class="m-cell complied">C</span> 2026-01-11</div>
+    <div class="detail-ac"><span class="ac-reg">HB-FWX</span><span class="m-cell complied">C</span> 2026-01-28</div>
+    <div class="detail-ac"><span class="ac-reg">N2050PA</span><span class="m-cell complied">C</span> 2026-01-05</div>
+    <div class="detail-ac"><span class="ac-reg">D-FNEW</span><span class="m-cell complied">C</span> 2026-01-16</div>
+    <div class="detail-ac"><span class="ac-reg">N2345ST</span><span class="m-cell complied">C</span> 2026-01-23</div>
+    <div class="detail-ac"><span class="ac-reg">OE-NEW</span><span class="m-cell complied">C</span> 2026-01-09</div>
+    <div class="detail-ac"><span class="ac-reg">N2750EX</span><span class="m-cell complied">C</span> 2026-01-30</div>
+    <div class="detail-ac"><span class="ac-reg">N2901NG</span><span class="m-cell complied">C</span> 2026-01-18</div>
+</div></td></tr>
+
+<!-- AD Row 4: 2026-0005 - PC-12/47E only - Open -->
+<tr class="ad-row new-ad" data-status="open" data-ad="2026-0005" onclick="toggleDetail('d4')">
+    <td class="sticky-col"><span class="expand-icon" id="ei-d4">&#9654;</span><div class="ad-info"><span class="ad-num"><a href="https://ad.easa.europa.eu/ad/2026-0005" target="_blank" onclick="event.stopPropagation()">EASA 2026-0005</a></span><span class="ad-ata">ATA 34</span><span class="ad-subj">Primus APEX II AHRS Software – Modification</span></div></td>
+    <td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td>
+    <td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td>
+    <td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td>
+    <td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td>
+</tr>
+<tr class="detail-row" id="d4"><td colspan="21"><div class="detail-content">
+    <div class="detail-ac"><span class="ac-reg">N101PA</span><span class="m-cell na">N/A</span> <span style="font-size:11px;color:#a0aec0">PC-12</span></div>
+    <div class="detail-ac"><span class="ac-reg">N312ST</span><span class="m-cell na">N/A</span> <span style="font-size:11px;color:#a0aec0">PC-12/45</span></div>
+    <div class="detail-ac"><span class="ac-reg">N601AC</span><span class="m-cell na">N/A</span> <span style="font-size:11px;color:#a0aec0">PC-12/47</span></div>
+    <div class="detail-ac"><span class="ac-reg">N1601E</span><span class="m-cell open">O</span></div>
+    <div class="detail-ac"><span class="ac-reg">N1755NG</span><span class="m-cell open">O</span></div>
+    <div class="detail-ac"><span class="ac-reg">HB-FWX</span><span class="m-cell open">O</span></div>
+    <div class="detail-ac"><span class="ac-reg">N2050PA</span><span class="m-cell open">O</span></div>
+    <div class="detail-ac"><span class="ac-reg">D-FNEW</span><span class="m-cell open">O</span></div>
+    <div class="detail-ac"><span class="ac-reg">N2345ST</span><span class="m-cell open">O</span></div>
+    <div class="detail-ac"><span class="ac-reg">OE-NEW</span><span class="m-cell open">O</span></div>
+    <div class="detail-ac"><span class="ac-reg">N2750EX</span><span class="m-cell open">O</span></div>
+    <div class="detail-ac"><span class="ac-reg">N2901NG</span><span class="m-cell open">O</span></div>
+</div></td></tr>
+
+<!-- AD Row 5: 2025-0310 - PC-12 + PC-12/45 only - Open -->
+<tr class="ad-row" data-status="open" data-ad="2025-0310" onclick="toggleDetail('d5')">
+    <td class="sticky-col"><span class="expand-icon" id="ei-d5">&#9654;</span><div class="ad-info"><span class="ad-num"><a href="https://ad.easa.europa.eu/ad/2025-0310" target="_blank" onclick="event.stopPropagation()">EASA 2025-0310</a></span><span class="ad-ata">ATA 32</span><span class="ad-subj">MLG Trunnion Fitting – Inspection / Replacement</span></div></td>
+    <td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td>
+    <td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td>
+    <td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td>
+    <td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td>
+</tr>
+<tr class="detail-row" id="d5"><td colspan="21"><div class="detail-content">
+    <div class="detail-ac"><span class="ac-reg">N101PA</span><span class="m-cell open">O</span></div>
+    <div class="detail-ac"><span class="ac-reg">N215PC</span><span class="m-cell open">O</span></div>
+    <div class="detail-ac"><span class="ac-reg">N312ST</span><span class="m-cell open">O</span></div>
+    <div class="detail-ac"><span class="ac-reg">N455PA</span><span class="m-cell open">O</span></div>
+    <div class="detail-ac"><span class="ac-reg">HB-FQA</span><span class="m-cell open">O</span></div>
+    <div class="detail-ac"><span class="ac-reg">N601AC</span><span class="m-cell na">N/A</span> <span style="font-size:11px;color:#a0aec0">PC-12/47</span></div>
+    <div class="detail-ac"><span class="ac-reg">N1601E</span><span class="m-cell na">N/A</span> <span style="font-size:11px;color:#a0aec0">PC-12/47E</span></div>
+</div></td></tr>
+
+<!-- AD Row 6: 2025-0308 - PC-12/45 + PC-12/47 - Accomplished -->
+<tr class="ad-row" data-status="accomplished" data-ad="2025-0308" onclick="toggleDetail('d6')">
+    <td class="sticky-col"><span class="expand-icon" id="ei-d6">&#9654;</span><div class="ad-info"><span class="ad-num"><a href="https://ad.easa.europa.eu/ad/2025-0308" target="_blank" onclick="event.stopPropagation()">EASA 2025-0308</a></span><span class="ad-ata">ATA 27</span><span class="ad-subj">Aileron Trim Tab Hinge – Inspection / Replacement</span></div></td>
+    <td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td>
+    <td><span class="m-cell complied" data-date="2026-01-14">C</span></td><td><span class="m-cell complied" data-date="2026-01-20">C</span></td><td><span class="m-cell complied" data-date="2026-01-07">C</span></td>
+    <td><span class="m-cell complied" data-date="2026-01-23">C</span></td><td><span class="m-cell complied" data-date="2026-01-11">C</span></td><td><span class="m-cell complied" data-date="2026-01-18">C</span></td><td><span class="m-cell complied" data-date="2026-01-26">C</span></td><td><span class="m-cell complied" data-date="2026-01-09">C</span></td><td><span class="m-cell complied" data-date="2026-01-16">C</span></td>
+    <td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td>
+</tr>
+<tr class="detail-row" id="d6"><td colspan="21"><div class="detail-content">
+    <div class="detail-ac"><span class="ac-reg">N312ST</span><span class="m-cell complied">C</span> 2026-01-14</div>
+    <div class="detail-ac"><span class="ac-reg">N455PA</span><span class="m-cell complied">C</span> 2026-01-20</div>
+    <div class="detail-ac"><span class="ac-reg">HB-FQA</span><span class="m-cell complied">C</span> 2026-01-07</div>
+    <div class="detail-ac"><span class="ac-reg">N601AC</span><span class="m-cell complied">C</span> 2026-01-23</div>
+    <div class="detail-ac"><span class="ac-reg">N720WA</span><span class="m-cell complied">C</span> 2026-01-11</div>
+    <div class="detail-ac"><span class="ac-reg">D-FLYA</span><span class="m-cell complied">C</span> 2026-01-18</div>
+    <div class="detail-ac"><span class="ac-reg">N988ST</span><span class="m-cell complied">C</span> 2026-01-26</div>
+    <div class="detail-ac"><span class="ac-reg">N847ST</span><span class="m-cell complied">C</span> 2026-01-09</div>
+    <div class="detail-ac"><span class="ac-reg">OE-EMZ</span><span class="m-cell complied">C</span> 2026-01-16</div>
+</div></td></tr>
+
+<!-- AD Row 7: 2025-0305 - ALL variants - Open -->
+<tr class="ad-row" data-status="open" data-ad="2025-0305" onclick="toggleDetail('d7')">
+    <td class="sticky-col"><span class="expand-icon" id="ei-d7">&#9654;</span><div class="ad-info"><span class="ad-num"><a href="https://ad.easa.europa.eu/ad/2025-0305" target="_blank" onclick="event.stopPropagation()">EASA 2025-0305</a></span><span class="ad-ata">ATA 28</span><span class="ad-subj">Wing Fuel Tank Vent Valve – Inspection / Replacement</span></div></td>
+    <td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td>
+    <td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td>
+    <td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td>
+    <td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td>
+</tr>
+<tr class="detail-row" id="d7"><td colspan="21"><div class="detail-content">
+    <div class="detail-ac"><span class="ac-reg">N101PA</span><span class="m-cell open">O</span></div>
+    <div class="detail-ac"><span class="ac-reg">N215PC</span><span class="m-cell open">O</span></div>
+    <div class="detail-ac"><span class="ac-reg">N312ST</span><span class="m-cell open">O</span></div>
+    <div class="detail-ac"><span class="ac-reg">N455PA</span><span class="m-cell open">O</span></div>
+    <div class="detail-ac"><span class="ac-reg">HB-FQA</span><span class="m-cell open">O</span></div>
+    <div class="detail-ac"><span class="ac-reg">N601AC</span><span class="m-cell open">O</span></div>
+    <div class="detail-ac"><span class="ac-reg">N720WA</span><span class="m-cell open">O</span></div>
+    <div class="detail-ac"><span class="ac-reg">D-FLYA</span><span class="m-cell open">O</span></div>
+    <div class="detail-ac"><span class="ac-reg">N988ST</span><span class="m-cell open">O</span></div>
+    <div class="detail-ac"><span class="ac-reg">N847ST</span><span class="m-cell open">O</span></div>
+    <div class="detail-ac"><span class="ac-reg">OE-EMZ</span><span class="m-cell open">O</span></div>
+    <div class="detail-ac"><span class="ac-reg">N1601E</span><span class="m-cell open">O</span></div>
+    <div class="detail-ac"><span class="ac-reg">N1755NG</span><span class="m-cell open">O</span></div>
+    <div class="detail-ac"><span class="ac-reg">HB-FWX</span><span class="m-cell open">O</span></div>
+    <div class="detail-ac"><span class="ac-reg">N2050PA</span><span class="m-cell open">O</span></div>
+    <div class="detail-ac"><span class="ac-reg">D-FNEW</span><span class="m-cell open">O</span></div>
+    <div class="detail-ac"><span class="ac-reg">N2345ST</span><span class="m-cell open">O</span></div>
+    <div class="detail-ac"><span class="ac-reg">OE-NEW</span><span class="m-cell open">O</span></div>
+    <div class="detail-ac"><span class="ac-reg">N2750EX</span><span class="m-cell open">O</span></div>
+    <div class="detail-ac"><span class="ac-reg">N2901NG</span><span class="m-cell open">O</span></div>
+</div></td></tr>
+
+<!-- AD Row 8: 2025-0303 - PC-12/47 + PC-12/47E - Accomplished -->
+<tr class="ad-row" data-status="accomplished" data-ad="2025-0303" onclick="toggleDetail('d8')">
+    <td class="sticky-col"><span class="expand-icon" id="ei-d8">&#9654;</span><div class="ad-info"><span class="ad-num"><a href="https://ad.easa.europa.eu/ad/2025-0303" target="_blank" onclick="event.stopPropagation()">EASA 2025-0303</a></span><span class="ad-ata">ATA 30</span><span class="ad-subj">Windshield Anti-Ice Controller – Software Update</span></div></td>
+    <td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td>
+    <td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td>
+    <td><span class="m-cell complied" data-date="2025-12-15">C</span></td><td><span class="m-cell complied" data-date="2025-12-28">C</span></td><td><span class="m-cell complied" data-date="2025-12-09">C</span></td><td><span class="m-cell complied" data-date="2025-12-22">C</span></td><td><span class="m-cell complied" data-date="2025-12-04">C</span></td><td><span class="m-cell complied" data-date="2025-12-19">C</span></td>
+    <td><span class="m-cell complied" data-date="2025-12-30">C</span></td><td><span class="m-cell complied" data-date="2025-12-11">C</span></td><td><span class="m-cell complied" data-date="2025-12-26">C</span></td><td><span class="m-cell complied" data-date="2025-12-07">C</span></td><td><span class="m-cell complied" data-date="2025-12-17">C</span></td><td><span class="m-cell complied" data-date="2026-01-02">C</span></td><td><span class="m-cell complied" data-date="2025-12-13">C</span></td><td><span class="m-cell complied" data-date="2025-12-24">C</span></td><td><span class="m-cell complied" data-date="2025-12-20">C</span></td>
+</tr>
+<tr class="detail-row" id="d8"><td colspan="21"><div class="detail-content">
+    <div class="detail-ac"><span class="ac-reg">N601AC</span><span class="m-cell complied">C</span> 2025-12-15</div>
+    <div class="detail-ac"><span class="ac-reg">N720WA</span><span class="m-cell complied">C</span> 2025-12-28</div>
+    <div class="detail-ac"><span class="ac-reg">D-FLYA</span><span class="m-cell complied">C</span> 2025-12-09</div>
+    <div class="detail-ac"><span class="ac-reg">N988ST</span><span class="m-cell complied">C</span> 2025-12-22</div>
+    <div class="detail-ac"><span class="ac-reg">N847ST</span><span class="m-cell complied">C</span> 2025-12-04</div>
+    <div class="detail-ac"><span class="ac-reg">OE-EMZ</span><span class="m-cell complied">C</span> 2025-12-19</div>
+    <div class="detail-ac"><span class="ac-reg">N1601E</span><span class="m-cell complied">C</span> 2025-12-30</div>
+    <div class="detail-ac"><span class="ac-reg">N1755NG</span><span class="m-cell complied">C</span> 2025-12-11</div>
+    <div class="detail-ac"><span class="ac-reg">HB-FWX</span><span class="m-cell complied">C</span> 2025-12-26</div>
+    <div class="detail-ac"><span class="ac-reg">N2050PA</span><span class="m-cell complied">C</span> 2025-12-07</div>
+    <div class="detail-ac"><span class="ac-reg">D-FNEW</span><span class="m-cell complied">C</span> 2025-12-17</div>
+    <div class="detail-ac"><span class="ac-reg">N2345ST</span><span class="m-cell complied">C</span> 2026-01-02</div>
+    <div class="detail-ac"><span class="ac-reg">OE-NEW</span><span class="m-cell complied">C</span> 2025-12-13</div>
+    <div class="detail-ac"><span class="ac-reg">N2750EX</span><span class="m-cell complied">C</span> 2025-12-24</div>
+    <div class="detail-ac"><span class="ac-reg">N2901NG</span><span class="m-cell complied">C</span> 2025-12-20</div>
+</div></td></tr>
+
+<!-- AD Row 9: 2025-0301 - PC-12/47E only - Open -->
+<tr class="ad-row" data-status="open" data-ad="2025-0301" onclick="toggleDetail('d9')">
+    <td class="sticky-col"><span class="expand-icon" id="ei-d9">&#9654;</span><div class="ad-info"><span class="ad-num"><a href="https://ad.easa.europa.eu/ad/2025-0301" target="_blank" onclick="event.stopPropagation()">EASA 2025-0301</a></span><span class="ad-ata">ATA 24</span><span class="ad-subj">Generator Control Unit – Replacement</span></div></td>
+    <td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td>
+    <td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td>
+    <td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td>
+    <td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td>
+</tr>
+<tr class="detail-row" id="d9"><td colspan="21"><div class="detail-content">
+    <div class="detail-ac"><span class="ac-reg">N1601E</span><span class="m-cell open">O</span></div>
+    <div class="detail-ac"><span class="ac-reg">N1755NG</span><span class="m-cell open">O</span></div>
+    <div class="detail-ac"><span class="ac-reg">HB-FWX</span><span class="m-cell open">O</span></div>
+    <div class="detail-ac"><span class="ac-reg">N2050PA</span><span class="m-cell open">O</span></div>
+    <div class="detail-ac"><span class="ac-reg">D-FNEW</span><span class="m-cell open">O</span></div>
+    <div class="detail-ac"><span class="ac-reg">N2345ST</span><span class="m-cell open">O</span></div>
+    <div class="detail-ac"><span class="ac-reg">OE-NEW</span><span class="m-cell open">O</span></div>
+    <div class="detail-ac"><span class="ac-reg">N2750EX</span><span class="m-cell open">O</span></div>
+    <div class="detail-ac"><span class="ac-reg">N2901NG</span><span class="m-cell open">O</span></div>
+</div></td></tr>
+
+<!-- AD Row 10: 2025-0299 - PC-12 + PC-12/45 - Accomplished -->
+<tr class="ad-row" data-status="accomplished" data-ad="2025-0299" onclick="toggleDetail('d10')">
+    <td class="sticky-col"><span class="expand-icon" id="ei-d10">&#9654;</span><div class="ad-info"><span class="ad-num"><a href="https://ad.easa.europa.eu/ad/2025-0299" target="_blank" onclick="event.stopPropagation()">EASA 2025-0299</a></span><span class="ad-ata">ATA 57</span><span class="ad-subj">Wing Root Rib Lower Attach Fittings – Inspection</span></div></td>
+    <td><span class="m-cell complied" data-date="2025-11-12">C</span></td><td><span class="m-cell complied" data-date="2025-11-20">C</span></td>
+    <td><span class="m-cell complied" data-date="2025-11-06">C</span></td><td><span class="m-cell complied" data-date="2025-11-25">C</span></td><td><span class="m-cell complied" data-date="2025-11-17">C</span></td>
+    <td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td>
+    <td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td>
+</tr>
+<tr class="detail-row" id="d10"><td colspan="21"><div class="detail-content">
+    <div class="detail-ac"><span class="ac-reg">N101PA</span><span class="m-cell complied">C</span> 2025-11-12</div>
+    <div class="detail-ac"><span class="ac-reg">N215PC</span><span class="m-cell complied">C</span> 2025-11-20</div>
+    <div class="detail-ac"><span class="ac-reg">N312ST</span><span class="m-cell complied">C</span> 2025-11-06</div>
+    <div class="detail-ac"><span class="ac-reg">N455PA</span><span class="m-cell complied">C</span> 2025-11-25</div>
+    <div class="detail-ac"><span class="ac-reg">HB-FQA</span><span class="m-cell complied">C</span> 2025-11-17</div>
+</div></td></tr>
+
+<!-- AD Row 11: 2025-0295P - PC-12/47 + PC-12/47E - Open -->
+<tr class="ad-row" data-status="open" data-ad="2025-0295P" onclick="toggleDetail('d11')">
+    <td class="sticky-col"><span class="expand-icon" id="ei-d11">&#9654;</span><div class="ad-info"><span class="ad-num"><a href="https://ad.easa.europa.eu/ad/2025-0295P" target="_blank" onclick="event.stopPropagation()">EASA 2025-0295P</a></span><span class="ad-ata">ATA 72</span><span class="ad-subj">PT6A-67P Compressor Turbine Blade – Borescope Insp</span></div></td>
+    <td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td>
+    <td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td>
+    <td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td>
+    <td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td>
+</tr>
+<tr class="detail-row" id="d11"><td colspan="21"><div class="detail-content">
+    <div class="detail-ac"><span class="ac-reg">N601AC</span><span class="m-cell open">O</span></div>
+    <div class="detail-ac"><span class="ac-reg">N720WA</span><span class="m-cell open">O</span></div>
+    <div class="detail-ac"><span class="ac-reg">D-FLYA</span><span class="m-cell open">O</span></div>
+    <div class="detail-ac"><span class="ac-reg">N988ST</span><span class="m-cell open">O</span></div>
+    <div class="detail-ac"><span class="ac-reg">N847ST</span><span class="m-cell open">O</span></div>
+    <div class="detail-ac"><span class="ac-reg">OE-EMZ</span><span class="m-cell open">O</span></div>
+    <div class="detail-ac"><span class="ac-reg">N1601E</span><span class="m-cell open">O</span></div>
+    <div class="detail-ac"><span class="ac-reg">N1755NG</span><span class="m-cell open">O</span></div>
+    <div class="detail-ac"><span class="ac-reg">HB-FWX</span><span class="m-cell open">O</span></div>
+    <div class="detail-ac"><span class="ac-reg">N2050PA</span><span class="m-cell open">O</span></div>
+    <div class="detail-ac"><span class="ac-reg">D-FNEW</span><span class="m-cell open">O</span></div>
+    <div class="detail-ac"><span class="ac-reg">N2345ST</span><span class="m-cell open">O</span></div>
+    <div class="detail-ac"><span class="ac-reg">OE-NEW</span><span class="m-cell open">O</span></div>
+    <div class="detail-ac"><span class="ac-reg">N2750EX</span><span class="m-cell open">O</span></div>
+    <div class="detail-ac"><span class="ac-reg">N2901NG</span><span class="m-cell open">O</span></div>
+</div></td></tr>
+
+<!-- AD Row 12: 2025-0290P - ALL variants - Accomplished -->
+<tr class="ad-row" data-status="accomplished" data-ad="2025-0290P" onclick="toggleDetail('d12')">
+    <td class="sticky-col"><span class="expand-icon" id="ei-d12">&#9654;</span><div class="ad-info"><span class="ad-num"><a href="https://ad.easa.europa.eu/ad/2025-0290P" target="_blank" onclick="event.stopPropagation()">EASA 2025-0290P</a></span><span class="ad-ata">ATA 25</span><span class="ad-subj">Passenger Oxygen Mask Drop Assembly – Inspection</span></div></td>
+    <td><span class="m-cell complied" data-date="2025-11-22">C</span></td><td><span class="m-cell complied" data-date="2025-11-30">C</span></td>
+    <td><span class="m-cell complied" data-date="2025-11-14">C</span></td><td><span class="m-cell complied" data-date="2025-12-03">C</span></td><td><span class="m-cell complied" data-date="2025-11-27">C</span></td>
+    <td><span class="m-cell complied" data-date="2025-11-18">C</span></td><td><span class="m-cell complied" data-date="2025-12-06">C</span></td><td><span class="m-cell complied" data-date="2025-11-10">C</span></td><td><span class="m-cell complied" data-date="2025-11-25">C</span></td><td><span class="m-cell complied" data-date="2025-12-01">C</span></td><td><span class="m-cell complied" data-date="2025-11-16">C</span></td>
+    <td><span class="m-cell complied" data-date="2025-12-08">C</span></td><td><span class="m-cell complied" data-date="2025-11-20">C</span></td><td><span class="m-cell complied" data-date="2025-11-29">C</span></td><td><span class="m-cell complied" data-date="2025-11-13">C</span></td><td><span class="m-cell complied" data-date="2025-12-04">C</span></td><td><span class="m-cell complied" data-date="2025-11-23">C</span></td><td><span class="m-cell complied" data-date="2025-12-10">C</span></td><td><span class="m-cell complied" data-date="2025-11-08">C</span></td><td><span class="m-cell complied" data-date="2025-11-26">C</span></td>
+</tr>
+<tr class="detail-row" id="d12"><td colspan="21"><div class="detail-content">
+    <div class="detail-ac"><span class="ac-reg">N101PA</span><span class="m-cell complied">C</span> 2025-11-22</div>
+    <div class="detail-ac"><span class="ac-reg">N215PC</span><span class="m-cell complied">C</span> 2025-11-30</div>
+    <div class="detail-ac"><span class="ac-reg">N312ST</span><span class="m-cell complied">C</span> 2025-11-14</div>
+    <div class="detail-ac"><span class="ac-reg">N455PA</span><span class="m-cell complied">C</span> 2025-12-03</div>
+    <div class="detail-ac"><span class="ac-reg">HB-FQA</span><span class="m-cell complied">C</span> 2025-11-27</div>
+    <div class="detail-ac"><span class="ac-reg">N601AC</span><span class="m-cell complied">C</span> 2025-11-18</div>
+    <div class="detail-ac"><span class="ac-reg">N720WA</span><span class="m-cell complied">C</span> 2025-12-06</div>
+    <div class="detail-ac"><span class="ac-reg">D-FLYA</span><span class="m-cell complied">C</span> 2025-11-10</div>
+    <div class="detail-ac"><span class="ac-reg">N988ST</span><span class="m-cell complied">C</span> 2025-11-25</div>
+    <div class="detail-ac"><span class="ac-reg">N847ST</span><span class="m-cell complied">C</span> 2025-12-01</div>
+    <div class="detail-ac"><span class="ac-reg">OE-EMZ</span><span class="m-cell complied">C</span> 2025-11-16</div>
+    <div class="detail-ac"><span class="ac-reg">N1601E</span><span class="m-cell complied">C</span> 2025-12-08</div>
+    <div class="detail-ac"><span class="ac-reg">N1755NG</span><span class="m-cell complied">C</span> 2025-11-20</div>
+    <div class="detail-ac"><span class="ac-reg">HB-FWX</span><span class="m-cell complied">C</span> 2025-11-29</div>
+    <div class="detail-ac"><span class="ac-reg">N2050PA</span><span class="m-cell complied">C</span> 2025-11-13</div>
+    <div class="detail-ac"><span class="ac-reg">D-FNEW</span><span class="m-cell complied">C</span> 2025-12-04</div>
+    <div class="detail-ac"><span class="ac-reg">N2345ST</span><span class="m-cell complied">C</span> 2025-11-23</div>
+    <div class="detail-ac"><span class="ac-reg">OE-NEW</span><span class="m-cell complied">C</span> 2025-12-10</div>
+    <div class="detail-ac"><span class="ac-reg">N2750EX</span><span class="m-cell complied">C</span> 2025-11-08</div>
+    <div class="detail-ac"><span class="ac-reg">N2901NG</span><span class="m-cell complied">C</span> 2025-11-26</div>
+</div></td></tr>
+
+<!-- AD Row 13: 2025-0285P - PC-12/45 + PC-12/47 - Open -->
+<tr class="ad-row" data-status="open" data-ad="2025-0285P" onclick="toggleDetail('d13')">
+    <td class="sticky-col"><span class="expand-icon" id="ei-d13">&#9654;</span><div class="ad-info"><span class="ad-num"><a href="https://ad.easa.europa.eu/ad/2025-0285P" target="_blank" onclick="event.stopPropagation()">EASA 2025-0285P</a></span><span class="ad-ata">ATA 56</span><span class="ad-subj">Cockpit Side Window Seal – Inspection / Replacement</span></div></td>
+    <td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td>
+    <td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td>
+    <td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td>
+    <td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td>
+</tr>
+<tr class="detail-row" id="d13"><td colspan="21"><div class="detail-content">
+    <div class="detail-ac"><span class="ac-reg">N312ST</span><span class="m-cell open">O</span></div>
+    <div class="detail-ac"><span class="ac-reg">N455PA</span><span class="m-cell open">O</span></div>
+    <div class="detail-ac"><span class="ac-reg">HB-FQA</span><span class="m-cell open">O</span></div>
+    <div class="detail-ac"><span class="ac-reg">N601AC</span><span class="m-cell open">O</span></div>
+    <div class="detail-ac"><span class="ac-reg">N720WA</span><span class="m-cell open">O</span></div>
+    <div class="detail-ac"><span class="ac-reg">D-FLYA</span><span class="m-cell open">O</span></div>
+    <div class="detail-ac"><span class="ac-reg">N988ST</span><span class="m-cell open">O</span></div>
+    <div class="detail-ac"><span class="ac-reg">N847ST</span><span class="m-cell open">O</span></div>
+    <div class="detail-ac"><span class="ac-reg">OE-EMZ</span><span class="m-cell open">O</span></div>
+</div></td></tr>
+
+<!-- AD Row 14: 2025-0280P - PC-12/47E only - Accomplished -->
+<tr class="ad-row" data-status="accomplished" data-ad="2025-0280P" onclick="toggleDetail('d14')">
+    <td class="sticky-col"><span class="expand-icon" id="ei-d14">&#9654;</span><div class="ad-info"><span class="ad-num"><a href="https://ad.easa.europa.eu/ad/2025-0280P" target="_blank" onclick="event.stopPropagation()">EASA 2025-0280P</a></span><span class="ad-ata">ATA 34</span><span class="ad-subj">GPS/SBAS Receiver Software – Update</span></div></td>
+    <td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td>
+    <td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td>
+    <td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td>
+    <td><span class="m-cell complied" data-date="2025-11-18">C</span></td><td><span class="m-cell complied" data-date="2025-11-05">C</span></td><td><span class="m-cell complied" data-date="2025-11-22">C</span></td><td><span class="m-cell complied" data-date="2025-11-10">C</span></td><td><span class="m-cell complied" data-date="2025-11-28">C</span></td><td><span class="m-cell complied" data-date="2025-11-15">C</span></td><td><span class="m-cell complied" data-date="2025-11-03">C</span></td><td><span class="m-cell complied" data-date="2025-11-24">C</span></td><td><span class="m-cell complied" data-date="2025-11-12">C</span></td>
+</tr>
+<tr class="detail-row" id="d14"><td colspan="21"><div class="detail-content">
+    <div class="detail-ac"><span class="ac-reg">N1601E</span><span class="m-cell complied">C</span> 2025-11-18</div>
+    <div class="detail-ac"><span class="ac-reg">N1755NG</span><span class="m-cell complied">C</span> 2025-11-05</div>
+    <div class="detail-ac"><span class="ac-reg">HB-FWX</span><span class="m-cell complied">C</span> 2025-11-22</div>
+    <div class="detail-ac"><span class="ac-reg">N2050PA</span><span class="m-cell complied">C</span> 2025-11-10</div>
+    <div class="detail-ac"><span class="ac-reg">D-FNEW</span><span class="m-cell complied">C</span> 2025-11-28</div>
+    <div class="detail-ac"><span class="ac-reg">N2345ST</span><span class="m-cell complied">C</span> 2025-11-15</div>
+    <div class="detail-ac"><span class="ac-reg">OE-NEW</span><span class="m-cell complied">C</span> 2025-11-03</div>
+    <div class="detail-ac"><span class="ac-reg">N2750EX</span><span class="m-cell complied">C</span> 2025-11-24</div>
+    <div class="detail-ac"><span class="ac-reg">N2901NG</span><span class="m-cell complied">C</span> 2025-11-12</div>
+</div></td></tr>
+
+                    </tbody>
+                </table>
+            </div>
         </div>
-        <div style="background:var(--bg-secondary);border-radius:4px;height:8px;margin-bottom:12px">
-          <div style="width:8.3%;height:100%;background:var(--accent-green);border-radius:4px"></div>
+
+        <!-- SB Compliance Matrix -->
+        <div class="section">
+            <h2>Service Bulletin Compliance Matrix</h2>
+            <div class="filter-bar">
+                <label>SB:</label>
+                <select class="doc-select" onchange="selectSB(this.value)" id="sbSelect">
+                    <option value="all">Show All SBs (7)</option>
+                    <option value="SB71-009">SB71-009 — Engine Mount Frame Eddy Current Insp (MANDATORY)</option>
+                    <option value="SB32-020">SB32-020 — MLG Special Bolts H2 Embrittlement (MANDATORY)</option>
+                    <option value="SB32-027">SB32-027 — LG Component Restriction PC-12/47E (MANDATORY)</option>
+                    <option value="SB61-002">SB61-002 — Propeller Blade Restriction (MANDATORY)</option>
+                    <option value="SB34-022">SB34-022 — ADAHRS Unit Replacement (MANDATORY)</option>
+                    <option value="SB26-002">SB26-002 — Halon-Alt Fire Extinguisher (RECOMMENDED)</option>
+                    <option value="SB26-003">SB26-003 — Cabin Fire Extinguisher (RECOMMENDED)</option>
+                </select>
+            </div>
+            <div class="ad-matrix-wrapper">
+                <table class="ad-matrix" id="sbMatrix">
+                    <thead>
+                        <tr>
+                            <th class="sticky-col" rowspan="2" style="vertical-align:bottom;border-bottom:2px solid var(--border)">SB / Aircraft</th>
+                            <th class="variant-header" colspan="2">PC-12</th>
+                            <th class="variant-header" colspan="3">PC-12/45</th>
+                            <th class="variant-header" colspan="6">PC-12/47</th>
+                            <th class="variant-header" colspan="9">PC-12/47E</th>
+                        </tr>
+                        <tr>
+                            <th class="ac-header" onclick="highlightSBCol(1)" data-sbcol="1">N101PA</th>
+                            <th class="ac-header" onclick="highlightSBCol(2)" data-sbcol="2">N215PC</th>
+                            <th class="ac-header" onclick="highlightSBCol(3)" data-sbcol="3">N312ST</th>
+                            <th class="ac-header" onclick="highlightSBCol(4)" data-sbcol="4">N455PA</th>
+                            <th class="ac-header" onclick="highlightSBCol(5)" data-sbcol="5">HB-FQA</th>
+                            <th class="ac-header" onclick="highlightSBCol(6)" data-sbcol="6">N601AC</th>
+                            <th class="ac-header" onclick="highlightSBCol(7)" data-sbcol="7">N720WA</th>
+                            <th class="ac-header" onclick="highlightSBCol(8)" data-sbcol="8">D-FLYA</th>
+                            <th class="ac-header" onclick="highlightSBCol(9)" data-sbcol="9">N988ST</th>
+                            <th class="ac-header" onclick="highlightSBCol(10)" data-sbcol="10">N847ST</th>
+                            <th class="ac-header" onclick="highlightSBCol(11)" data-sbcol="11">OE-EMZ</th>
+                            <th class="ac-header" onclick="highlightSBCol(12)" data-sbcol="12">N1601E</th>
+                            <th class="ac-header" onclick="highlightSBCol(13)" data-sbcol="13">N1755NG</th>
+                            <th class="ac-header" onclick="highlightSBCol(14)" data-sbcol="14">HB-FWX</th>
+                            <th class="ac-header" onclick="highlightSBCol(15)" data-sbcol="15">N2050PA</th>
+                            <th class="ac-header" onclick="highlightSBCol(16)" data-sbcol="16">D-FNEW</th>
+                            <th class="ac-header" onclick="highlightSBCol(17)" data-sbcol="17">N2345ST</th>
+                            <th class="ac-header" onclick="highlightSBCol(18)" data-sbcol="18">OE-NEW</th>
+                            <th class="ac-header" onclick="highlightSBCol(19)" data-sbcol="19">N2750EX</th>
+                            <th class="ac-header" onclick="highlightSBCol(20)" data-sbcol="20">N2901NG</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+<!-- SB Row 1: SB71-009 - All variants applicable for PC-12 through PC-12/47 -->
+<tr class="sb-row" data-sb="SB71-009">
+    <td class="sticky-col"><div class="ad-info"><span class="ad-num">SB71-009</span><span class="ad-ata">ATA 71 | MANDATORY</span><span class="ad-subj">Engine Mount Frame Assembly – Eddy Current Insp</span></div></td>
+    <td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td>
+    <td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td>
+    <td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td>
+    <td><span class="m-cell na">-</span></td>
+    <td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td>
+</tr>
+<!-- SB Row 2: SB32-020 -->
+<tr class="sb-row" data-sb="SB32-020">
+    <td class="sticky-col"><div class="ad-info"><span class="ad-num">SB32-020</span><span class="ad-ata">ATA 32 | MANDATORY</span><span class="ad-subj">MLG Special Bolts – Hydrogen Embrittlement Insp</span></div></td>
+    <td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td>
+    <td><span class="m-cell open">O</span></td><td><span class="m-cell complied" data-date="2025-09-14">C</span></td><td><span class="m-cell open">O</span></td>
+    <td><span class="m-cell open">O</span></td><td><span class="m-cell complied" data-date="2025-07-28">C</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell complied" data-date="2025-10-21">C</span></td>
+    <td><span class="m-cell na">-</span></td>
+    <td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td>
+</tr>
+<!-- SB Row 3: SB32-027 -->
+<tr class="sb-row" data-sb="SB32-027">
+    <td class="sticky-col"><div class="ad-info"><span class="ad-num">SB32-027</span><span class="ad-ata">ATA 32 | MANDATORY</span><span class="ad-subj">Landing Gear Component Restriction for PC-12/47E</span></div></td>
+    <td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td>
+    <td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td>
+    <td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td>
+    <td><span class="m-cell na">-</span></td>
+    <td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td>
+</tr>
+<!-- SB Row 4: SB61-002 -->
+<tr class="sb-row" data-sb="SB61-002">
+    <td class="sticky-col"><div class="ad-info"><span class="ad-num">SB61-002</span><span class="ad-ata">ATA 61 | MANDATORY</span><span class="ad-subj">Propeller Blade Restriction</span></div></td>
+    <td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td>
+    <td><span class="m-cell open">O</span></td><td><span class="m-cell complied" data-date="2025-11-02">C</span></td><td><span class="m-cell open">O</span></td>
+    <td><span class="m-cell open">O</span></td><td><span class="m-cell complied" data-date="2025-08-15">C</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell complied" data-date="2025-12-09">C</span></td>
+    <td><span class="m-cell na">-</span></td>
+    <td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td>
+</tr>
+<!-- SB Row 5: SB34-022 -->
+<tr class="sb-row" data-sb="SB34-022">
+    <td class="sticky-col"><div class="ad-info"><span class="ad-num">SB34-022</span><span class="ad-ata">ATA 34 | MANDATORY</span><span class="ad-subj">ADAHRS Unit Replacement / Modification</span></div></td>
+    <td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td>
+    <td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td>
+    <td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td>
+    <td><span class="m-cell na">-</span></td>
+    <td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td>
+</tr>
+<!-- SB Row 6: SB26-002 -->
+<tr class="sb-row" data-sb="SB26-002">
+    <td class="sticky-col"><div class="ad-info"><span class="ad-num">SB26-002</span><span class="ad-ata">ATA 26 | RECOMMENDED</span><span class="ad-subj">Halon-Alt Flight Compartment Fire Extinguisher</span></div></td>
+    <td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td>
+    <td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td>
+    <td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td>
+    <td><span class="m-cell na">-</span></td>
+    <td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td>
+</tr>
+<!-- SB Row 7: SB26-003 -->
+<tr class="sb-row" data-sb="SB26-003">
+    <td class="sticky-col"><div class="ad-info"><span class="ad-num">SB26-003</span><span class="ad-ata">ATA 26 | RECOMMENDED</span><span class="ad-subj">Introduction of Cabin Fire Extinguisher</span></div></td>
+    <td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td>
+    <td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td>
+    <td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td>
+    <td><span class="m-cell na">-</span></td>
+    <td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td>
+</tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
-        <div style="text-align:center;font-size:20px;font-weight:700;color:var(--accent-green)">92% Savings</div>
-      </div>
+
+        <!-- Recent Changes -->
+        <div class="section">
+            <h2>Recent Changes</h2>
+            <div class="change-item new">
+                <strong>2026-02-08</strong>:
+                v6.3 Dashboard redesign — Fleet-focused AD compliance matrix with variant-based applicability
+            </div>
+            <div class="change-item new">
+                <strong>2026-02-06</strong>:
+                New fleet AD: 2026-0010 (ALS Rev.23 – all variants)
+            </div>
+            <div class="change-item new">
+                <strong>2026-02-04</strong>:
+                New fleet AD: 2026-0008 (Engine Mount – PC-12/47, PC-12/47E)
+            </div>
+            <div class="change-item ">
+                <strong>2026-02-03 (FAA)</strong>:
+                0 new AD(s) | 0 revision(s) | 0 fleet-relevant
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>Generated by Aviation Engineer AD/SB Evaluator Agent v6.3</p>
+            <p>Only fleet-applicable ADs shown (14 PC-12 ADs). Full EASA register: 114 ADs total.</p>
+            <p>Confidence scores are algorithmic estimates. CAMO engineer verification required for all AD/SB applicability decisions.</p>
+        </div>
     </div>
-  </div>
 
-</main>
-
-<!-- DETAIL PANEL OVERLAY -->
-<div class="detail-overlay" id="detailOverlay" onclick="if(event.target===this)closeDetail()">
-  <div class="detail-panel" id="detailPanel"></div>
-</div>
-
-<!-- FOOTER -->
-<footer class="footer">
-  <div class="ai-badge"><span class="sparkle">&#10024;</span> Powered by Claude Code AI Skill</div>
-  <div style="margin-bottom:8px">CAMO Engineer AD Monitor v6.3 &mdash; Aviation AI Dashboard</div>
-  <div style="margin-bottom:8px">This is a <strong>decision support tool</strong>. All evaluations must be verified by qualified CAMO engineers.</div>
-  <div><a href="https://github.com/eminozturk1986/CAMO-Engineer-AD-Monitor" target="_blank">GitHub Repository</a> &middot; MIT License &middot; Created Feb 2026</div>
-</footer>
-
-<script>
-// =====================================================
-// DEMO DATA
-// =====================================================
-const fleet = [
-  {reg:"N847ST",model:"PC-12/47",msn:1247,hours:3850,landings:4200,engine:"PT6A-67P",operator:"SkyTech Aviation LLC",components:"NLG:532.20.12.289|MLG:532.30.14.125",stc:"None"},
-  {reg:"N848ST",model:"PC-12/47E",msn:1305,hours:5200,landings:5850,engine:"PT6A-67P",operator:"SkyTech Aviation LLC",components:"NLG:532.20.12.310|MLG:532.30.14.125",stc:"SA00634DE"},
-  {reg:"N849ST",model:"PC-12/45",msn:688,hours:8100,landings:9340,engine:"PT6A-67B",operator:"SkyTech Aviation LLC",components:"NLG:532.20.11.180|MLG:532.30.12.095",stc:"None"},
-  {reg:"N850ST",model:"A320-214",msn:4521,hours:22400,landings:14800,engine:"CFM56-5B4/3",operator:"SkyTech Aviation LLC",components:"FQI:34-42-01|ELV:55-30-02",stc:"None"},
-  {reg:"N851ST",model:"A320-251N",msn:9876,hours:6800,landings:4500,engine:"LEAP-1A26",operator:"SkyTech Aviation LLC",components:"FQI:34-42-03|FAN:72-21-01",stc:"None"}
-];
-
-const evaluations = [
-  {
-    doc:"AD 2026-0001",type:"AD",authority:"FAA",
-    subject:"Nose Landing Gear Drag Link Inspection",
-    effectivity:"PC-12/47, MSN 1200-1300",
-    models:["PC-12/47"],msnRange:[1200,1300],componentPN:"532.20.12.289",stcReq:"",
-    complianceTime:"100 hours TIS",complianceType:"hours",complianceValue:100,isRecurring:true,
-    actions:"Inspect NLG drag link P/N 532.20.12.289 for cracks using visual and dye penetrant methods. Replace if cracked.",
-    results:[
-      {reg:"N847ST",status:"APPLICABLE",deadline:"3,950 hrs",amp:"Yes",notes:"Recurring 100-hr inspection. MSN 1247 in range 1200-1300."},
-      {reg:"N848ST",status:"NOT APPLICABLE",deadline:"-",amp:"No",notes:"MSN 1305 outside range 1200-1300."}
-    ]
-  },
-  {
-    doc:"AD 2021-24-01",type:"AD",authority:"FAA",
-    subject:"Strake Attachment Bracket Reinforcement",
-    effectivity:"PC-12 Series, all MSN, STC SA00634DE required",
-    models:["PC-12"],msnRange:[0,999999],componentPN:"",stcReq:"SA00634DE",
-    complianceTime:"500 hours TIS",complianceType:"hours",complianceValue:500,isRecurring:false,
-    actions:"Reinforce strake attachment brackets per Pilatus Service Bulletin 57-003. One-time modification.",
-    results:[
-      {reg:"N847ST",status:"NOT APPLICABLE",deadline:"-",amp:"No",notes:"STC SA00634DE not installed."},
-      {reg:"N848ST",status:"APPLICABLE",deadline:"5,700 hrs",amp:"No",notes:"STC SA00634DE installed. One-time modification required."},
-      {reg:"N849ST",status:"NOT APPLICABLE",deadline:"-",amp:"No",notes:"STC SA00634DE not installed."}
-    ]
-  },
-  {
-    doc:"AD 2008-02-03",type:"AD",authority:"FAA",
-    subject:"MLG Special Bolts Replacement",
-    effectivity:"PC-12/45, MSN 101-749",
-    models:["PC-12/45"],msnRange:[101,749],componentPN:"532.30.12.095",stcReq:"",
-    complianceTime:"200 landings",complianceType:"landings",complianceValue:200,isRecurring:false,
-    actions:"Replace main landing gear special bolts P/N 532.30.12.095 with improved bolts P/N 532.30.12.096.",
-    results:[
-      {reg:"N849ST",status:"APPLICABLE",deadline:"9,540 ldg",amp:"No",notes:"MSN 688 in range. One-time bolt replacement."}
-    ]
-  },
-  {
-    doc:"AD 2025-0182",type:"AD",authority:"EASA",
-    subject:"Engine Oil Pipe Assembly Inspection",
-    effectivity:"PC-12/47 and PC-12/47E, all MSNs",
-    models:["PC-12/47","PC-12/47E"],msnRange:[0,999999],componentPN:"",stcReq:"",
-    complianceTime:"50 hours TIS",complianceType:"hours",complianceValue:50,isRecurring:true,
-    actions:"Inspect engine oil pipe assemblies for chafing and leaks. Replace if damage exceeds limits per AMM 79-20-00.",
-    results:[
-      {reg:"N847ST",status:"APPLICABLE",deadline:"3,900 hrs",amp:"Yes",notes:"Recurring 50-hr inspection interval."},
-      {reg:"N848ST",status:"APPLICABLE",deadline:"5,250 hrs",amp:"Yes",notes:"Recurring 50-hr inspection interval."}
-    ]
-  },
-  {
-    doc:"AD 2024-0089",type:"AD",authority:"EASA",
-    subject:"Fuel Quantity Indicator Wiring Check",
-    effectivity:"A320 family, MSN 4000-9999",
-    models:["A320-214","A320-251N","A320"],msnRange:[4000,9999],componentPN:"34-42-01",stcReq:"",
-    complianceTime:"BEFORE NEXT FLIGHT",complianceType:"immediate",complianceValue:0,isRecurring:false,
-    actions:"Inspect fuel quantity indicator wiring harness for chafing per SB A320-28-1342. Repair or replace if damaged. IMMEDIATE action required.",
-    results:[
-      {reg:"N850ST",status:"APPLICABLE",deadline:"IMMEDIATE",amp:"No",notes:"EMERGENCY: Before next flight. MSN 4521 in range."},
-      {reg:"N851ST",status:"APPLICABLE",deadline:"IMMEDIATE",amp:"No",notes:"EMERGENCY: Before next flight. MSN 9876 in range."}
-    ]
-  },
-  {
-    doc:"AD 2025-0211",type:"AD",authority:"FAA",
-    subject:"Elevator Tab Attachment Bolt Inspection",
-    effectivity:"A320-214, MSN 4000-5000",
-    models:["A320-214"],msnRange:[4000,5000],componentPN:"55-30-02",stcReq:"",
-    complianceTime:"300 hours TIS",complianceType:"hours",complianceValue:300,isRecurring:true,
-    actions:"Inspect elevator tab attachment bolts for corrosion and cracks per SB A320-55-1089. Recurring every 300 hours.",
-    results:[
-      {reg:"N850ST",status:"APPLICABLE",deadline:"22,700 hrs",amp:"Yes",notes:"Recurring 300-hr inspection."},
-      {reg:"N851ST",status:"NOT APPLICABLE",deadline:"-",amp:"No",notes:"Aircraft model A320-251N, not A320-214."}
-    ]
-  },
-  {
-    doc:"SB 32-020",type:"SB",authority:"Pilatus",
-    subject:"Wing Spar Cap Reinforcement",
-    effectivity:"PC-12/45, MSN 500-750",
-    models:["PC-12/45"],msnRange:[500,750],componentPN:"",stcReq:"",
-    complianceTime:"1000 hours TIS",complianceType:"hours",complianceValue:1000,isRecurring:false,
-    actions:"Install wing spar cap reinforcement doubler per SB 32-020 instructions. One-time structural modification.",
-    results:[
-      {reg:"N849ST",status:"APPLICABLE",deadline:"9,100 hrs",amp:"No",notes:"MSN 688 in range. One-time structural mod."}
-    ]
-  },
-  {
-    doc:"AD 2026-0034",type:"AD",authority:"EASA",
-    subject:"CFM LEAP-1A Fan Blade Ultrasonic Inspection",
-    effectivity:"A320-251N (LEAP-1A powered), all MSNs",
-    models:["A320-251N"],msnRange:[0,999999],componentPN:"72-21-01",stcReq:"",
-    complianceTime:"750 cycles",complianceType:"landings",complianceValue:750,isRecurring:true,
-    actions:"Perform ultrasonic inspection of LEAP-1A fan blades per CFM SB LEAP-1A-72-0044. Recurring every 750 cycles.",
-    results:[
-      {reg:"N851ST",status:"REQUIRES VERIFICATION",deadline:"~5,250 cyc",amp:"Yes",notes:"Model matches. Fan blade P/N requires physical verification against CFM parts list."}
-    ]
-  }
-];
-
-// =====================================================
-// RENDER FUNCTIONS
-// =====================================================
-
-// Flatten evaluations to per-aircraft rows
-function getRows(filter) {
-  const rows = [];
-  evaluations.forEach(ev => {
-    ev.results.forEach(r => {
-      if (filter === 'all' || r.status === filter) {
-        rows.push({...r, doc:ev.doc, type:ev.type, authority:ev.authority, subject:ev.subject, evData:ev});
-      }
-    });
-  });
-  return rows;
-}
-
-function badgeClass(status) {
-  if (status === 'APPLICABLE') return 'badge-applicable';
-  if (status === 'NOT APPLICABLE') return 'badge-not-applicable';
-  if (status === 'REQUIRES VERIFICATION') return 'badge-verification';
-  return '';
-}
-
-function authorityBadge(auth) {
-  if (auth === 'FAA') return 'badge-faa';
-  if (auth === 'EASA') return 'badge-easa';
-  return 'badge-mfr';
-}
-
-function typeBadge(t) {
-  return t === 'SB' ? 'badge-sb' : 'badge-ad';
-}
-
-function renderTable(filter) {
-  const rows = getRows(filter);
-  const tbody = document.getElementById('evalBody');
-  tbody.innerHTML = rows.map((r, i) => `
-    <tr class="clickable" onclick='showDetail(${JSON.stringify(r.evData).replace(/'/g,"&#39;")})'>
-      <td><strong style="color:var(--text-primary)">${r.doc}</strong></td>
-      <td><span class="badge ${typeBadge(r.type)}">${r.type}</span></td>
-      <td><span class="badge ${authorityBadge(r.authority)}">${r.authority}</span></td>
-      <td style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${r.subject}">${r.subject}</td>
-      <td><strong style="color:var(--accent-cyan)">${r.reg}</strong></td>
-      <td><span class="badge ${badgeClass(r.status)}${r.deadline==='IMMEDIATE'?' badge-immediate':''}">${r.status}</span></td>
-      <td style="font-family:monospace;font-size:12px">${r.deadline}</td>
-      <td>${r.amp === 'Yes' ? '<span style="color:var(--accent-amber)">Yes</span>' : '<span style="color:var(--text-muted)">No</span>'}</td>
-    </tr>
-  `).join('');
-}
-
-function filterTable(filter) {
-  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-  event.target.classList.add('active');
-  renderTable(filter);
-}
-
-// Detail Panel
-function showDetail(ev) {
-  const panel = document.getElementById('detailPanel');
-  const resultsHTML = ev.results.map(r => `
-    <tr>
-      <td><strong style="color:var(--accent-cyan)">${r.reg}</strong></td>
-      <td><span class="badge ${badgeClass(r.status)}${r.deadline==='IMMEDIATE'?' badge-immediate':''}">${r.status}</span></td>
-      <td style="font-family:monospace">${r.deadline}</td>
-      <td>${r.amp}</td>
-      <td style="font-size:12px">${r.notes}</td>
-    </tr>
-  `).join('');
-
-  panel.innerHTML = `
-    <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:20px">
-      <div>
-        <h2>${ev.doc}</h2>
-        <div class="subtitle">${ev.subject}</div>
-      </div>
-      <button onclick="closeDetail()" style="background:none;border:none;color:var(--text-muted);font-size:28px;cursor:pointer;line-height:1">&times;</button>
-    </div>
-    <div class="detail-grid">
-      <div class="detail-field">
-        <label>Document Type</label>
-        <div class="val"><span class="badge ${typeBadge(ev.type)}">${ev.type}</span></div>
-      </div>
-      <div class="detail-field">
-        <label>Issuing Authority</label>
-        <div class="val"><span class="badge ${authorityBadge(ev.authority)}">${ev.authority}</span></div>
-      </div>
-      <div class="detail-field">
-        <label>Effectivity</label>
-        <div class="val">${ev.effectivity}</div>
-      </div>
-      <div class="detail-field">
-        <label>Compliance Time</label>
-        <div class="val">${ev.complianceTime} ${ev.isRecurring ? '<span style="color:var(--accent-amber);font-size:11px">(RECURRING)</span>' : '<span style="color:var(--text-muted);font-size:11px">(ONE-TIME)</span>'}</div>
-      </div>
-      ${ev.componentPN ? `<div class="detail-field"><label>Component P/N</label><div class="val" style="font-family:monospace">${ev.componentPN}</div></div>` : ''}
-      ${ev.stcReq ? `<div class="detail-field"><label>Required STC</label><div class="val" style="font-family:monospace">${ev.stcReq}</div></div>` : ''}
-      <div class="detail-field full">
-        <label>Required Actions</label>
-        <div class="val" style="font-size:13px;line-height:1.6">${ev.actions}</div>
-      </div>
-    </div>
-    <div style="margin-top:8px">
-      <div style="font-size:13px;font-weight:600;margin-bottom:12px">Fleet Evaluation Results</div>
-      <div class="table-container" style="margin-bottom:0">
-        <table>
-          <thead><tr><th>Aircraft</th><th>Applicability</th><th>Deadline</th><th>AMP</th><th>Notes</th></tr></thead>
-          <tbody>${resultsHTML}</tbody>
-        </table>
-      </div>
-    </div>
-  `;
-  document.getElementById('detailOverlay').classList.add('visible');
-}
-
-function closeDetail() {
-  document.getElementById('detailOverlay').classList.remove('visible');
-}
-
-document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDetail(); });
-
-// Compliance Timeline
-function renderTimeline() {
-  const container = document.getElementById('timelineContainer');
-  const items = [];
-  evaluations.forEach(ev => {
-    ev.results.forEach(r => {
-      if (r.status === 'APPLICABLE' || r.status === 'REQUIRES VERIFICATION') {
-        let pct = 50;
-        let cls = 'ok';
-        let label = r.deadline;
-        if (r.deadline === 'IMMEDIATE') { pct = 100; cls = 'urgent'; label = 'IMMEDIATE'; }
-        else if (ev.complianceType === 'hours') {
-          const ac = fleet.find(f => f.reg === r.reg);
-          if (ac) {
-            const remaining = ev.complianceValue;
-            pct = Math.min(95, Math.max(15, (1 - remaining / 2000) * 100));
-            if (remaining <= 100) cls = 'urgent';
-            else if (remaining <= 300) cls = 'soon';
-            else cls = ev.isRecurring ? 'recurring' : 'ok';
-          }
-        } else if (ev.complianceType === 'landings') {
-          const remaining = ev.complianceValue;
-          pct = Math.min(90, Math.max(15, (1 - remaining / 2000) * 100));
-          cls = ev.isRecurring ? 'recurring' : 'ok';
+    <script>
+        // Toggle detail row expand/collapse
+        function toggleDetail(id) {
+            var row = document.getElementById(id);
+            var icon = document.getElementById('ei-' + id);
+            if (row.classList.contains('expanded')) {
+                row.classList.remove('expanded');
+                icon.classList.remove('rotated');
+            } else {
+                row.classList.add('expanded');
+                icon.classList.add('rotated');
+            }
         }
-        items.push({reg: r.reg, doc: ev.doc, pct, cls, label, deadline: r.deadline});
-      }
-    });
-  });
 
-  // Sort: urgent first
-  const order = {urgent:0,soon:1,recurring:2,ok:3};
-  items.sort((a,b) => order[a.cls] - order[b.cls]);
+        // Highlight aircraft column across matrix
+        var highlightedCol = null;
+        function highlightCol(colIdx) {
+            var headers = document.querySelectorAll('.ac-header');
+            var table = document.getElementById('adMatrix');
+            var rows = table.querySelectorAll('tbody tr.ad-row');
 
-  container.innerHTML = items.map(it => `
-    <div class="timeline-row">
-      <div class="timeline-reg">${it.reg}</div>
-      <div class="timeline-ad">${it.doc}</div>
-      <div class="timeline-bar-wrap">
-        <div class="timeline-bar ${it.cls}" style="width:${it.pct}%">${it.cls === 'urgent' ? 'URGENT' : it.cls === 'soon' ? 'SOON' : it.cls === 'recurring' ? 'RECURRING' : 'OK'}</div>
-      </div>
-      <div class="timeline-deadline">${it.deadline}</div>
-    </div>
-  `).join('');
-}
+            // Toggle off if same column clicked
+            if (highlightedCol === colIdx) {
+                headers.forEach(function(h) { h.classList.remove('highlighted'); });
+                rows.forEach(function(r) {
+                    var cells = r.querySelectorAll('td');
+                    cells.forEach(function(c, i) {
+                        if (i > 0) c.style.background = '';
+                    });
+                });
+                highlightedCol = null;
+                return;
+            }
 
-// =====================================================
-// INIT
-// =====================================================
-renderTable('all');
-renderTimeline();
-</script>
+            // Clear previous
+            headers.forEach(function(h) { h.classList.remove('highlighted'); });
+            rows.forEach(function(r) {
+                var cells = r.querySelectorAll('td');
+                cells.forEach(function(c, i) {
+                    if (i > 0) c.style.background = '';
+                });
+            });
+
+            // Highlight new
+            highlightedCol = colIdx;
+            headers.forEach(function(h) {
+                if (parseInt(h.getAttribute('data-col')) === colIdx) {
+                    h.classList.add('highlighted');
+                }
+            });
+
+            rows.forEach(function(r) {
+                var cells = r.querySelectorAll('td');
+                if (cells[colIdx]) {
+                    cells[colIdx].style.background = '#ebf8ff';
+                }
+            });
+        }
+
+        // Filter matrix rows by status
+        function filterMatrix(status) {
+            var rows = document.querySelectorAll('#adMatrix tbody tr.ad-row');
+            var details = document.querySelectorAll('#adMatrix tbody tr.detail-row');
+            var buttons = document.querySelectorAll('.filter-btn');
+
+            buttons.forEach(function(btn) { btn.classList.remove('active'); });
+            document.getElementById('mfilter-' + status).classList.add('active');
+
+            // Collapse all details first
+            details.forEach(function(d) {
+                d.classList.remove('expanded');
+            });
+            document.querySelectorAll('.expand-icon').forEach(function(ei) {
+                ei.classList.remove('rotated');
+            });
+
+            rows.forEach(function(row) {
+                var rowStatus = row.getAttribute('data-status');
+                var detailId = row.getAttribute('onclick').match(/'([^']+)'/)[1];
+                var detailRow = document.getElementById(detailId);
+
+                if (status === 'all') {
+                    row.style.display = '';
+                    detailRow.style.display = '';
+                } else if (rowStatus === status) {
+                    row.style.display = '';
+                    detailRow.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                    detailRow.style.display = 'none';
+                }
+            });
+        }
+
+        // Select AD from dropdown — show one or all
+        function selectAD(adNumber) {
+            var rows = document.querySelectorAll('#adMatrix tbody tr.ad-row');
+            var details = document.querySelectorAll('#adMatrix tbody tr.detail-row');
+
+            // Collapse all details first
+            details.forEach(function(d) { d.classList.remove('expanded'); });
+            document.querySelectorAll('#adMatrix .expand-icon').forEach(function(ei) { ei.classList.remove('rotated'); });
+
+            rows.forEach(function(row) {
+                var detailId = row.getAttribute('onclick').match(/'([^']+)'/)[1];
+                var detailRow = document.getElementById(detailId);
+                var rowAD = row.getAttribute('data-ad');
+
+                if (adNumber === 'all' || rowAD === adNumber) {
+                    row.style.display = '';
+                    detailRow.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                    detailRow.style.display = 'none';
+                }
+            });
+
+            // Reset status filter to All
+            document.querySelectorAll('.filter-btn').forEach(function(btn) { btn.classList.remove('active'); });
+            document.getElementById('mfilter-all').classList.add('active');
+        }
+
+        // Select SB from dropdown — show one or all
+        function selectSB(sbNumber) {
+            var rows = document.querySelectorAll('#sbMatrix tbody tr.sb-row');
+
+            rows.forEach(function(row) {
+                var rowSB = row.getAttribute('data-sb');
+                if (sbNumber === 'all' || rowSB === sbNumber) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        // Highlight aircraft column in SB matrix
+        var highlightedSBCol = null;
+        function highlightSBCol(colIdx) {
+            var table = document.getElementById('sbMatrix');
+            var headers = table.querySelectorAll('.ac-header');
+            var rows = table.querySelectorAll('tbody tr.sb-row');
+
+            // Toggle off if same column clicked
+            if (highlightedSBCol === colIdx) {
+                headers.forEach(function(h) { h.classList.remove('highlighted'); });
+                rows.forEach(function(r) {
+                    var cells = r.querySelectorAll('td');
+                    cells.forEach(function(c, i) {
+                        if (i > 0) c.style.background = '';
+                    });
+                });
+                highlightedSBCol = null;
+                return;
+            }
+
+            // Clear previous
+            headers.forEach(function(h) { h.classList.remove('highlighted'); });
+            rows.forEach(function(r) {
+                var cells = r.querySelectorAll('td');
+                cells.forEach(function(c, i) {
+                    if (i > 0) c.style.background = '';
+                });
+            });
+
+            // Highlight new
+            highlightedSBCol = colIdx;
+            headers.forEach(function(h) {
+                if (parseInt(h.getAttribute('data-sbcol')) === colIdx) {
+                    h.classList.add('highlighted');
+                }
+            });
+
+            rows.forEach(function(r) {
+                var cells = r.querySelectorAll('td');
+                if (cells[colIdx]) {
+                    cells[colIdx].style.background = '#ebf8ff';
+                }
+            });
+        }
+    </script>
 </body>
 </html>
