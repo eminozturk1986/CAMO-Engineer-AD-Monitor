@@ -2,6 +2,19 @@
 
 A Claude Code skill for token-efficient Airworthiness Directive (AD) and Service Bulletin (SB) evaluation for PC-12 fleet management with CAMO-standard compliance tracking.
 
+## Live Dashboard
+
+**[View the Interactive Dashboard](https://eminozturk1986.github.io/CAMO-Engineer-AD-Monitor/)**
+
+A static demo dashboard showcasing what the AI skill can achieve for aviation CAMO operations:
+- Fleet overview with 5 aircraft (PC-12 & A320 variants)
+- 8 real-world AD/SB evaluation results
+- Interactive filtering by applicability status
+- Click any AD row to see full evaluation details
+- Compliance timeline with urgency visualization
+- Dual-authority monitoring (FAA + EASA)
+- Token efficiency metrics
+
 ## Features
 
 - **Dual Authority Support**: Monitors both EASA and FAA Airworthiness Directives
