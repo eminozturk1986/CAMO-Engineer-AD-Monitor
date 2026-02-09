@@ -1,8 +1,13 @@
-# Aviation Engineer - AD/SB Evaluator Agent v5.1
+# Aviation Engineer - AD/SB Evaluator Agent v6.3
 
 ## Purpose
 Token-efficient AD/SB evaluation for PC-12 fleet with CAMO-standard compliance tracking.
 Supports both **EASA** and **FAA** Airworthiness Directives.
+
+## v6.3 Enhancements
+- **Interactive Dashboard** - GitHub Pages static dashboard with fleet overview, evaluation results, compliance timeline
+- **Multi-Fleet Support** - PC-12 and A320 family aircraft in demo data
+- **Dual Authority Visualization** - FAA + EASA monitoring status panels
 
 ## v5.1 Enhancements (CAMO Compliance)
 - **Emergency AD Interrupt Logic** - Auto-detect EMERGENCY/IMMEDIATE/BEFORE FURTHER FLIGHT keywords

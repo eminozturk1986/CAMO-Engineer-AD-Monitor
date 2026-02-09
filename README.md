@@ -1,4 +1,4 @@
-# Aviation Engineer AD/SB Evaluator Agent v5.1
+# Aviation Engineer AD/SB Evaluator Agent v6.3
 
 A Claude Code skill for token-efficient Airworthiness Directive (AD) and Service Bulletin (SB) evaluation for PC-12 fleet management with CAMO-standard compliance tracking.
 
@@ -165,6 +165,7 @@ Modify `FLEET_KEYWORDS` in the Python scripts to adapt for other aircraft types.
 
 | Version | Date | Changes |
 |---------|------|---------|
+| v6.3 | Feb 9, 2026 | Interactive GitHub Pages dashboard, multi-fleet demo, dual authority visualization |
 | v5.1 | Feb 3, 2026 | Emergency AD interrupt, audit evidence, supersedure chain |
 | v5.0 | Feb 2, 2026 | FAA support, dual authority monitoring |
 | v4.0 | Feb 1, 2026 | Bi-weekly HTML check, token optimization |
