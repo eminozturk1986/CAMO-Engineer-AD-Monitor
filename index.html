@@ -809,11 +809,11 @@
             <h2>Fleet AD Compliance Overview</h2>
             <div class="stats-grid">
                 <div class="stat-card">
-                    <div class="value">14</div>
+                    <div class="value">15</div>
                     <div class="label">Fleet ADs (PC-12)</div>
                 </div>
                 <div class="stat-card">
-                    <div class="value red">8</div>
+                    <div class="value red">9</div>
                     <div class="label">Open</div>
                 </div>
                 <div class="stat-card">
@@ -821,7 +821,7 @@
                     <div class="label">Accomplished</div>
                 </div>
                 <div class="stat-card">
-                    <div class="value">43%</div>
+                    <div class="value">40%</div>
                     <div class="label">Compliance Rate</div>
                 </div>
                 <div class="stat-card">
@@ -834,8 +834,8 @@
                 </div>
             </div>
             <div class="progress-bar-container" style="margin-top:15px">
-                <div class="progress-bar-fill progress-accomplished" style="width:43%">43% Accomplished</div>
-                <div class="progress-bar-fill progress-open" style="width:57%">57% Open</div>
+                <div class="progress-bar-fill progress-accomplished" style="width:40%">40% Accomplished</div>
+                <div class="progress-bar-fill progress-open" style="width:60%">60% Open</div>
             </div>
         </div>
 
@@ -844,11 +844,11 @@
             <h2>Fleet AD Compliance Matrix</h2>
             <div class="filter-bar">
                 <label>Status:</label>
-                <button class="filter-btn active" onclick="filterMatrix('all')" id="mfilter-all">All <span class="count">14</span></button>
-                <button class="filter-btn" onclick="filterMatrix('open')" id="mfilter-open">Open <span class="count">8</span></button>
+                <button class="filter-btn active" onclick="filterMatrix('all')" id="mfilter-all">All <span class="count">15</span></button>
+                <button class="filter-btn" onclick="filterMatrix('open')" id="mfilter-open">Open <span class="count">9</span></button>
                 <button class="filter-btn" onclick="filterMatrix('accomplished')" id="mfilter-accomplished">Accomplished <span class="count">6</span></button>
                 <select class="doc-select" onchange="selectAD(this.value)" id="adSelect">
-                    <option value="all">Show All ADs (14)</option>
+                    <option value="all">Show All ADs (15)</option>
                     <option value="2026-0010">EASA 2026-0010 — ALS Rev. 23 Amendment</option>
                     <option value="2026-0008">EASA 2026-0008 — Engine Mount Fwd Attach Bolt</option>
                     <option value="2026-0006">EASA 2026-0006 — Aft Pressure Bulkhead Rivets</option>
@@ -863,6 +863,7 @@
                     <option value="2025-0290P">EASA 2025-0290P — Passenger Oxygen Mask Drop</option>
                     <option value="2025-0285P">EASA 2025-0285P — Cockpit Side Window Seal</option>
                     <option value="2025-0280P">EASA 2025-0280P — GPS/SBAS Receiver Software</option>
+                    <option value="2025-0182">EASA 2025-0182 — Engine Oil Pipe Assembly Inspection</option>
                 </select>
             </div>
             <div class="ad-matrix-wrapper">
@@ -1243,6 +1244,32 @@
     <div class="detail-ac"><span class="ac-reg">OE-NEW</span><span class="m-cell complied">C</span> 2025-11-03</div>
     <div class="detail-ac"><span class="ac-reg">N2750EX</span><span class="m-cell complied">C</span> 2025-11-24</div>
     <div class="detail-ac"><span class="ac-reg">N2901NG</span><span class="m-cell complied">C</span> 2025-11-12</div>
+</div></td></tr>
+
+<!-- AD Row 15: 2025-0182 - PC-12/47 + PC-12/47E only - Open -->
+<tr class="ad-row" data-status="open" data-ad="2025-0182" onclick="toggleDetail('d15')">
+    <td class="sticky-col"><span class="expand-icon" id="ei-d15">&#9654;</span><div class="ad-info"><span class="ad-num"><a href="https://ad.easa.europa.eu/ad/2025-0182" target="_blank" onclick="event.stopPropagation()">EASA 2025-0182</a></span><span class="ad-ata">ATA 79</span><span class="ad-subj">Engine Oil Pipe Assembly – Inspection (Recurring)</span></div></td>
+    <td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td>
+    <td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td><td><span class="m-cell na">-</span></td>
+    <td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td>
+    <td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td><td><span class="m-cell open">O</span></td>
+</tr>
+<tr class="detail-row" id="d15"><td colspan="21"><div class="detail-content">
+    <div class="detail-ac"><span class="ac-reg">N601AC</span><span class="m-cell open">O</span> Due: 7,250 hrs</div>
+    <div class="detail-ac"><span class="ac-reg">N720WA</span><span class="m-cell open">O</span> Due: 6,550 hrs</div>
+    <div class="detail-ac"><span class="ac-reg">D-FLYA</span><span class="m-cell open">O</span> Due: 5,850 hrs</div>
+    <div class="detail-ac"><span class="ac-reg">N988ST</span><span class="m-cell open">O</span> Due: 5,150 hrs</div>
+    <div class="detail-ac"><span class="ac-reg">N847ST</span><span class="m-cell open">O</span> Due: 3,900 hrs</div>
+    <div class="detail-ac"><span class="ac-reg">OE-EMZ</span><span class="m-cell open">O</span> Due: 3,250 hrs</div>
+    <div class="detail-ac"><span class="ac-reg">N1601E</span><span class="m-cell open">O</span> Due: 2,850 hrs</div>
+    <div class="detail-ac"><span class="ac-reg">N1755NG</span><span class="m-cell open">O</span> Due: 2,450 hrs</div>
+    <div class="detail-ac"><span class="ac-reg">HB-FWX</span><span class="m-cell open">O</span> Due: 1,950 hrs</div>
+    <div class="detail-ac"><span class="ac-reg">N2050PA</span><span class="m-cell open">O</span> Due: 1,550 hrs</div>
+    <div class="detail-ac"><span class="ac-reg">D-FNEW</span><span class="m-cell open">O</span> Due: 1,150 hrs</div>
+    <div class="detail-ac"><span class="ac-reg">N2345ST</span><span class="m-cell open">O</span> Due: 900 hrs</div>
+    <div class="detail-ac"><span class="ac-reg">OE-NEW</span><span class="m-cell open">O</span> Due: 570 hrs</div>
+    <div class="detail-ac"><span class="ac-reg">N2750EX</span><span class="m-cell open">O</span> Due: 330 hrs</div>
+    <div class="detail-ac"><span class="ac-reg">N2901NG</span><span class="m-cell open">O</span> Due: 145 hrs</div>
 </div></td></tr>
 
                     </tbody>
