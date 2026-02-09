@@ -5,6 +5,10 @@ ADs/*.pdf
 *.xlsx
 *.ods
 
+# But include sample/demo Excel files
+!Fleet_Database_SkyTech.xlsx
+!SAMPLE_OUTPUT_Report.xlsx
+
 # Reports with operational data
 EASA_Reports/*.json
 EASA_Reports/*.html
