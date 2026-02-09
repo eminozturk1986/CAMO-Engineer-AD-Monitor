@@ -1,12 +1,16 @@
 """
-EASA Bi-Weekly AD Checker for PC-12 Fleet v2.0
+EASA Bi-Weekly AD Checker for PC-12 Fleet v2.1
 ==============================================
 This script:
-1. Fetches recent EASA ADs via HTML metadata (low token cost)
-2. Filters for PC-12 applicable ADs
-3. Downloads PDFs only for applicable ADs
-4. Archives bi-weekly reports
-5. Prepares data for CAMO evaluation
+1. Validates fleet database before checking
+2. Fetches recent EASA ADs via HTML metadata (low token cost)
+3. Filters for PC-12 applicable ADs
+4. Downloads PDFs only for applicable ADs
+5. Archives bi-weekly reports
+6. Prepares data for CAMO evaluation
+
+v2.1 Enhancements:
+- Fleet database validation before AD check (v6.0 feature)
 
 v2.0 Enhancements (CAMO Compliance):
 - Emergency AD interrupt logic (EMERGENCY, IMMEDIATE, BEFORE FURTHER FLIGHT)
@@ -24,6 +28,9 @@ from datetime import datetime, timedelta
 import json
 import os
 import re
+
+# Import fleet validation
+from validate_fleet_db import run_validation_check
 
 # Configuration
 SKILL_DIR = "C:/Users/delye/.claude/skills/aviation-engineer-agent"
@@ -193,13 +200,13 @@ def download_ad_pdf(ad_number, save_dir):
             filepath = os.path.join(save_dir, filename)
             with open(filepath, 'wb') as f:
                 f.write(response.content)
-            print(f"  ✓ Downloaded: {filename}")
+            print(f"  [OK] Downloaded: {filename}")
             return filepath
         else:
-            print(f"  ✗ Failed to download AD {ad_number}")
+            print(f"  [FAIL] Failed to download AD {ad_number}")
             return None
     except Exception as e:
-        print(f"  ✗ Error downloading AD {ad_number}: {e}")
+        print(f"  [FAIL] Error downloading AD {ad_number}: {e}")
         return None
 
 def save_biweekly_report(ads_metadata, start_date, end_date, applicable, not_applicable, emergency_ads, monitoring_date):
@@ -280,15 +287,25 @@ def run_biweekly_check():
     ensure_directories()
     monitoring_date = datetime.now().strftime('%Y-%m-%d')
 
+    # Step 0: Validate fleet database before checking
+    print("\n[VALIDATION] Running fleet database validation...")
+    try:
+        run_validation_check(FLEET_FILE, block_on_error=True)
+        print("[VALIDATION] Fleet database validation passed")
+    except ValueError as e:
+        print(f"\n[ERROR] Fleet validation failed: {e}")
+        print("[BLOCKED] Fix fleet database errors before running AD check")
+        return None
+
     # Step 1: Fetch recent ADs (HTML metadata only)
     ads_metadata, start_date, end_date = fetch_recent_easa_ads(days_back=14)
 
     # Step 2: Filter for fleet types (with emergency detection)
     applicable, not_applicable, emergency_ads = filter_for_fleet(ads_metadata, FLEET_TYPES)
 
-    print(f"\n{'─'*60}")
+    print(f"\n{'-'*60}")
     print(f"FILTERING RESULTS")
-    print(f"{'─'*60}")
+    print(f"{'-'*60}")
     print(f"Total ADs in period:     {len(ads_metadata)}")
     print(f"Fleet applicable:        {len(applicable)}")
     print(f"Emergency ADs:           {len(emergency_ads)}")
@@ -309,9 +326,9 @@ def run_biweekly_check():
     # Step 3: Download PDFs only for applicable ADs (emergency first)
     downloaded_pdfs = []
     if applicable:
-        print(f"\n{'─'*60}")
+        print(f"\n{'-'*60}")
         print(f"DOWNLOADING APPLICABLE AD PDFs")
-        print(f"{'─'*60}")
+        print(f"{'-'*60}")
 
         # Download emergency ADs first (priority)
         if emergency_ads:
